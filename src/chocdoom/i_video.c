@@ -38,11 +38,7 @@ rcsid[] = "$Id: i_x.c,v 1.6 1997/02/03 22:45:10 b1 Exp $";
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "lcd.h"
-#include "gfx.h"
-#include "images.h"
-#include "touch.h"
-#include "button.h"
+
 
 // The screen buffer; this is modified to draw things to the screen
 
@@ -95,8 +91,6 @@ static uint16_t rgb565_palette[256];
 
 // Last touch state
 
-static touch_state_t last_touch_state;
-
 // Last button state
 
 static bool last_button_state;
@@ -107,7 +101,7 @@ static bool run;
 
 void I_InitGraphics (void)
 {
-	gfx_image_t keys_img;
+	/*gfx_image_t keys_img;
 	gfx_coord_t coords;
 
 	gfx_init_img (&keys_img, 40, 320, GFX_PIXEL_FORMAT_RGB565, RGB565_BLACK);
@@ -118,7 +112,7 @@ void I_InitGraphics (void)
 	lcd_refresh ();
 
 	gfx_draw_img (&keys_img, &coords);
-	lcd_refresh ();
+	lcd_refresh ();*/
 
 	I_VideoBuffer = (byte*)Z_Malloc (SCREENWIDTH * SCREENHEIGHT, PU_STATIC, NULL);
 
@@ -138,7 +132,7 @@ void I_StartFrame (void)
 void I_GetEvent (void)
 {
 	event_t event;
-	bool button_state;
+	/*bool button_state;
 
 	button_state = button_read ();
 
@@ -152,9 +146,9 @@ void I_GetEvent (void)
 		event.data3 = -1;
 
 		D_PostEvent (&event);
-	}
+	}*/
 
-	touch_main ();
+	/*touch_main ();
 
 	if ((touch_state.x != last_touch_state.x) || (touch_state.y != last_touch_state.y) || (touch_state.status != last_touch_state.status))
 	{
@@ -302,7 +296,7 @@ void I_GetEvent (void)
 		}
 
 		D_PostEvent (&event);
-	}
+	}*/
 }
 
 void I_StartTic (void)
@@ -319,7 +313,7 @@ void I_FinishUpdate (void)
 	int x, y;
 	byte index;
 
-	lcd_vsync = false;
+	//lcd_vsync = false;
 
 	for (y = 0; y < SCREENHEIGHT; y++)
 	{
@@ -327,13 +321,13 @@ void I_FinishUpdate (void)
 		{
 			index = I_VideoBuffer[y * SCREENWIDTH + x];
 
-			((uint16_t*)lcd_frame_buffer)[x * GFX_MAX_WIDTH + (GFX_MAX_WIDTH - y - 1)] = rgb565_palette[index];
+			//((uint16_t*)lcd_frame_buffer)[x * GFX_MAX_WIDTH + (GFX_MAX_WIDTH - y - 1)] = rgb565_palette[index];
 		}
 	}
 
-	lcd_refresh ();
+	//lcd_refresh ();
 
-	lcd_vsync = true;
+	//lcd_vsync = true;
 }
 
 //
@@ -356,9 +350,9 @@ void I_SetPalette (byte* palette)
 	{
 		c = (col_t*)palette;
 
-		rgb565_palette[i] = GFX_RGB565(gammatable[usegamma][c->r],
-									   gammatable[usegamma][c->g],
-									   gammatable[usegamma][c->b]);
+		//rgb565_palette[i] = GFX_RGB565(gammatable[usegamma][c->r],
+		//							   gammatable[usegamma][c->g],
+		//							   gammatable[usegamma][c->b]);
 
 		palette += 3;
 	}
@@ -377,9 +371,9 @@ int I_GetPaletteIndex (int r, int g, int b)
 
     for (i = 0; i < 256; ++i)
     {
-    	color.r = GFX_RGB565_R(rgb565_palette[i]);
-    	color.g = GFX_RGB565_G(rgb565_palette[i]);
-    	color.b = GFX_RGB565_B(rgb565_palette[i]);
+    	//color.r = GFX_RGB565_R(rgb565_palette[i]);
+    	//color.g = GFX_RGB565_G(rgb565_palette[i]);
+    	//color.b = GFX_RGB565_B(rgb565_palette[i]);
 
         diff = (r - color.r) * (r - color.r)
              + (g - color.g) * (g - color.g)

@@ -75,7 +75,7 @@ void M_ClearRandom (void)
 #if ORIGCODE
     rndindex = time(NULL) & 0xff;
 #else
-	rndindex = systime & 0xff;
+	rndindex = blit::now() & 0xff;
 #endif
 }
 

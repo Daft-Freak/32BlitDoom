@@ -62,7 +62,7 @@ void M_MakeDirectory(char *path)
 	#if ORIGCODE
     mkdir(path, 0755);
 	#else
-    FRESULT res;
+    /*FRESULT res;
     char* path_mod;
     int len;
 
@@ -85,7 +85,8 @@ void M_MakeDirectory(char *path)
     	I_Error ("M_MakeDirectory: path = '%s', path_mod = '%s', res = %i", path, path_mod, res);
     }
 
-    free (path_mod);
+    free (path_mod);*/
+    I_Error("M_MakeDirectory");
 	#endif
 #endif
 }
@@ -112,13 +113,13 @@ boolean M_FileExists(char *filename)
         return errno == EISDIR;
     }
 #else
-	FILINFO fno;
+	/*FILINFO fno;
 
 	if (f_stat (filename, &fno) != FR_OK)
 	{
 		return false;
-	}
-	
+	}*/
+	puts("M_FileExists");
 	return true;
 #endif
 }
@@ -145,9 +146,9 @@ long M_FileLength(FILE *handle)
     return length;
 }
 #else
-long M_FileLength(FIL *handle)
+long M_FileLength(blit::File &handle)
 {
-    return f_size (handle);
+    return handle.get_length();
 }
 #endif
 
@@ -177,7 +178,7 @@ boolean M_WriteFile(char *name, void *source, int length)
 #else
 boolean M_WriteFile(char *name, void *source, int length)
 {
-	FIL file;
+	/*FIL file;
 	unsigned long c;
 
 	if (f_open (&file, name, FA_CREATE_ALWAYS | FA_WRITE) != FR_OK)
@@ -197,7 +198,9 @@ boolean M_WriteFile(char *name, void *source, int length)
 	if (c != length)
 	{
 		return false;
-	}
+	}*/
+
+    puts("M_WriteFile");
 
 	return true;
 }
@@ -235,20 +238,18 @@ int M_ReadFile(char *name, byte **buffer)
 #else
 int M_ReadFile(char *name, byte **buffer)
 {
-	FIL file;
+	blit::File file(name);
 	int length;
 	byte		*buf;
-	unsigned long read;
 
-	if (f_open (&file, name, FA_OPEN_EXISTING | FA_READ) != FR_OK)
+	if (!file.is_open())
 	{
 		I_Error ("Couldn't read file %s", name);
 	}
 
-	length = f_size (&file);
+	length = file.get_length();
 	buf = Z_Malloc (length, PU_STATIC, NULL);
-	f_readn (&file, buf, length, &read);
-	f_close (&file);
+    file.read(0, length, (char *)buf);
 
 	*buffer = buf;
 	return length;

@@ -505,8 +505,7 @@ void M_ReadSaveStrings(void)
 #if ORIGCODE
     FILE   *handle;
 #else
-    FIL		handle;
-    unsigned long count;
+    blit::File handle;
 #endif
     int     i;
     char    name[256];
@@ -519,7 +518,7 @@ void M_ReadSaveStrings(void)
 
         if (handle == NULL)
 #else
-        if (f_open (&handle, name, FA_OPEN_EXISTING | FA_READ) != FR_OK)
+        if (!handle.open(name))
 #endif
         {
             M_StringCopy(savegamestrings[i], EMPTYSTRING, SAVESTRINGSIZE);
@@ -531,8 +530,8 @@ void M_ReadSaveStrings(void)
 		fread(&savegamestrings[i], 1, SAVESTRINGSIZE, handle);
 		fclose(handle);
 #else
-		f_read (&handle, &savegamestrings[i], SAVESTRINGSIZE, &count);
-		f_close (&handle);
+        handle.read(0, SAVESTRINGSIZE, (char *)&savegamestrings[i]);
+		handle.close();
 #endif
 		LoadMenu[i].status = 1;
     }
@@ -952,7 +951,7 @@ void M_VerifyNightmare(int key)
     if (key != key_menu_confirm)
 	return;
 		
-    G_DeferedInitNew(nightmare,epi+1,1);
+    G_DeferedInitNew((skill_t)nightmare,epi+1,1);
     M_ClearMenus ();
 }
 

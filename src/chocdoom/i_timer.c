@@ -97,7 +97,7 @@ int  I_GetTime (void)
 {
     uint32_t ticks;
 
-    ticks = systime;
+    ticks = blit::now();
 
     if (basetime == 0)
         basetime = ticks;
@@ -115,7 +115,7 @@ int I_GetTimeMS(void)
 {
     uint32_t ticks;
 
-    ticks = systime;
+    ticks = blit::now();
 
     if (basetime == 0)
         basetime = ticks;
@@ -127,7 +127,10 @@ int I_GetTimeMS(void)
 
 void I_Sleep(int ms)
 {
-	sleep_ms (ms);
+	//sleep_ms (ms);
+    //??
+    uint32_t end = blit::now() + ms;
+    while(blit::now() != end);
 }
 
 void I_WaitVBL(int count)

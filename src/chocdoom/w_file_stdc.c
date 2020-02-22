@@ -28,7 +28,7 @@
 typedef struct
 {
     wad_file_t wad;
-    FIL fstream;
+    blit::File fstream;
 } stdc_wad_file_t;
 
 extern wad_file_class_t stdc_wad_file;
@@ -57,9 +57,9 @@ static wad_file_t *W_StdC_OpenFile(char *path)
     return &result->wad;
 #else
     stdc_wad_file_t *result;
-    FIL file;
+    blit::File file(path);
 
-    if (f_open (&file, path, FA_OPEN_EXISTING | FA_READ) != FR_OK)
+    if (!file.is_open())
     {
     	return NULL;
     }
@@ -69,8 +69,8 @@ static wad_file_t *W_StdC_OpenFile(char *path)
     result = Z_Malloc(sizeof(stdc_wad_file_t), PU_STATIC, 0);
 	result->wad.file_class = &stdc_wad_file;
 	result->wad.mapped = NULL;
-	result->wad.length = M_FileLength(&file);
-	result->fstream = file;
+	result->wad.length = M_FileLength(file);
+	result->fstream = std::move(file);
 
 	return &result->wad;
 #endif
@@ -90,7 +90,7 @@ static void W_StdC_CloseFile(wad_file_t *wad)
 
     stdc_wad = (stdc_wad_file_t *) wad;
 
-    f_close(&stdc_wad->fstream);
+    stdc_wad->fstream.close();
     Z_Free(stdc_wad);	
 #endif
 }
@@ -118,19 +118,10 @@ size_t W_StdC_Read(wad_file_t *wad, unsigned int offset,
     return result;
 #else
     stdc_wad_file_t *stdc_wad;
-	UINT count;
 
     stdc_wad = (stdc_wad_file_t *) wad;
 
-    // Jump to the specified position in the file.
-
-	f_lseek (&stdc_wad->fstream, offset);
-
-    // Read into the buffer.
-
-    f_readn (&stdc_wad->fstream, buffer, buffer_len, &count);
-
-    return count;
+    return stdc_wad->fstream.read(offset, buffer_len, (char *)buffer);
 #endif
 }
 

@@ -24,7 +24,7 @@
 #include <stdarg.h>
 
 #include "doomtype.h"
-#include "ff.h"
+#include "engine/file.hpp"
 
 boolean M_WriteFile(char *name, void *source, int length);
 int M_ReadFile(char *name, byte **buffer);
@@ -34,7 +34,7 @@ boolean M_FileExists(char *file);
 #if ORIGCODE
 long M_FileLength(FILE *handle);
 #else
-long M_FileLength(FIL *handle);
+long M_FileLength(blit::File &handle);
 #endif
 boolean M_StrToInt(const char *str, int *result);
 void M_ExtractFileBase(char *path, char *dest);

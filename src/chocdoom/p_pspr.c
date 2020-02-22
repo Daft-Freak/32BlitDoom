@@ -261,7 +261,7 @@ void P_DropWeapon (player_t* player)
 }
 
 
-
+extern "C" {
 //
 // A_WeaponReady
 // The player can fire the weapon
@@ -597,7 +597,7 @@ A_FirePlasma
     P_SpawnPlayerMissile (player->mo, MT_PLASMA);
 }
 
-
+} //extern C
 
 //
 // P_BulletSlope
@@ -648,7 +648,7 @@ P_GunShot
     P_LineAttack (mo, angle, MISSILERANGE, bulletslope, damage);
 }
 
-
+extern "C" {
 //
 // A_FirePistol
 //
@@ -831,7 +831,7 @@ A_BFGsound
     S_StartSound (player->mo, sfx_bfg);
 }
 
-
+} // extern C
 
 //
 // P_SetupPsprites

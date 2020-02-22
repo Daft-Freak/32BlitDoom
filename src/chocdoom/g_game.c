@@ -614,7 +614,7 @@ void G_DoLoadLevel (void)
     levelstarttic = gametic;        // for time calculation
     
     if (wipegamestate == GS_LEVEL) 
-	wipegamestate = -1;             // force a wipe 
+	wipegamestate = (gamestate_t)-1;             // force a wipe 
 
     gamestate = GS_LEVEL; 
 
@@ -1526,7 +1526,7 @@ void G_DoLoadGame (void)
 	 
     gameaction = ga_nothing; 
 	 
-    if (f_open (&save_stream, savename, FA_OPEN_EXISTING | FA_READ) != FR_OK)
+    if (!save_stream.open(savename))
     {
     	return;
     }
@@ -1535,7 +1535,7 @@ void G_DoLoadGame (void)
 
     if (!P_ReadSaveGameHeader())
     {
-        f_close (&save_stream);
+        save_stream.close();
         return;
     }
 
@@ -1555,7 +1555,7 @@ void G_DoLoadGame (void)
     if (!P_ReadSaveGameEOF())
 	I_Error ("Bad savegame");
 
-    f_close (&save_stream);
+    save_stream.close();
     
     if (setsizeneeded)
     	R_ExecuteSetViewSize ();
@@ -1584,17 +1584,16 @@ void G_DoSaveGame (void)
 { 
     char *savegame_file;
     char *temp_savegame_file;
-    FRESULT res;
 
-    temp_savegame_file = strupr (P_TempSaveGameFile());
-    savegame_file = strupr (P_SaveGameFile(savegameslot));
+    temp_savegame_file = /*strupr*/ (P_TempSaveGameFile());
+    savegame_file = /*strupr*/ (P_SaveGameFile(savegameslot));
 
     // Open the savegame file for writing.  We write to a temporary file
     // and then rename it at the end if it was successfully written.
     // This prevents an existing savegame from being overwritten by 
     // a corrupted one, or if a savegame buffer overrun occurs.
 
-    if (f_open (&save_stream, temp_savegame_file, FA_CREATE_ALWAYS | FA_WRITE) != FR_OK)
+    //if (f_open (&save_stream, temp_savegame_file, FA_CREATE_ALWAYS | FA_WRITE) != FR_OK)
     {
     	I_Error ("open err %s\n", temp_savegame_file);
     }
@@ -1613,28 +1612,28 @@ void G_DoSaveGame (void)
     // Enforce the same savegame size limit as in Vanilla Doom, 
     // except if the vanilla_savegame_limit setting is turned off.
 
-    if (vanilla_savegame_limit && f_tell (&save_stream) > SAVEGAMESIZE)
+    //if (vanilla_savegame_limit && f_tell (&save_stream) > SAVEGAMESIZE)
     {
         I_Error ("Savegame buffer overrun");
     }
     
     // Finish up, close the savegame file.
 
-    f_close (&save_stream);
+    //f_close (&save_stream);
 
     // Now rename the temporary savegame file to the actual savegame
     // file, overwriting the old savegame if there was one there.
 
     if (M_FileExists (savegame_file))
     {
-    	f_unlink (savegame_file);
+    	//f_unlink (savegame_file);
     }
 
-    res = f_rename (temp_savegame_file, savegame_file);
+    //res = f_rename (temp_savegame_file, savegame_file);
 
-    if (res != FR_OK)
+    //if (res != FR_OK)
     {
-    	I_Error ("Savegame not renamed, res = %i", res);
+    	//I_Error ("Savegame not renamed, res = %i", res);
     }
     
     gameaction = ga_nothing;

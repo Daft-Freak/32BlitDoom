@@ -38,7 +38,8 @@
 #define SAVEGAME_EOF 0x1d
 #define VERSIONSIZE 16 
 
-FIL save_stream;
+blit::File save_stream;
+uint32_t save_stream_off;
 int savegamelength;
 boolean savegame_error;
 
@@ -85,7 +86,7 @@ static byte saveg_read8(void)
     byte result;
     unsigned long count;
 
-    if (f_readn (&save_stream, &result, 1, &count) != FR_OK)
+    if (save_stream.read(save_stream_off, 1, &result) != 1)
     {
         if (!savegame_error)
         {
@@ -96,6 +97,8 @@ static byte saveg_read8(void)
         }
     }
 
+    save_stream_off++;
+
     return result;
 }
 
@@ -103,7 +106,7 @@ static void saveg_write8(byte value)
 {
 	unsigned long count;
 
-	if (f_writen (&save_stream, &value, 1, &count) != FR_OK)
+	/*if (f_writen (&save_stream, &value, 1, &count) != FR_OK)
     {
         if (!savegame_error)
         {
@@ -111,7 +114,7 @@ static void saveg_write8(byte value)
 
             savegame_error = true;
         }
-    }
+    }*/
 }
 
 static short saveg_read16(void)
@@ -158,7 +161,7 @@ static void saveg_read_pad(void)
     int padding;
     int i;
 
-    pos = f_tell (&save_stream);
+    pos = save_stream_off;
 
     padding = (4 - (pos & 3)) & 3;
 
@@ -174,7 +177,7 @@ static void saveg_write_pad(void)
     int padding;
     int i;
 
-    pos = f_tell (&save_stream);
+    pos = save_stream_off;
 
     padding = (4 - (pos & 3)) & 3;
 

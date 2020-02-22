@@ -74,7 +74,7 @@ dirtype_t diags[] =
 
 
 
-
+extern "C"
 void A_Fall (mobj_t *actor);
 
 
@@ -542,6 +542,7 @@ P_LookForPlayers
     return false;
 }
 
+extern "C" {
 
 //
 // A_KeenDie
@@ -1100,7 +1101,7 @@ void A_SkelFist (mobj_t*	actor)
     }
 }
 
-
+} // extern C
 
 //
 // PIT_VileCheck
@@ -1144,6 +1145,7 @@ boolean PIT_VileCheck (mobj_t*	thing)
 }
 
 
+extern "C" {
 
 //
 // A_VileChase
@@ -2004,3 +2006,5 @@ void A_PlayerScream (mobj_t* mo)
     
     S_StartSound (mo, sound);
 }
+
+} // extern C
