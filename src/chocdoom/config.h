@@ -97,4 +97,4 @@
 #undef ORIGCODE
 
 /* Define to the directory where all game files are located */
-#define FILES_DIR "0:/doom"
+#define FILES_DIR "doom-data"

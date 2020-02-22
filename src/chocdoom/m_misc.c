@@ -86,7 +86,7 @@ void M_MakeDirectory(char *path)
     }
 
     free (path_mod);*/
-    I_Error("M_MakeDirectory");
+    printf("M_MakeDirectory: path = '%s'\n", path);
 	#endif
 #endif
 }
@@ -119,7 +119,9 @@ boolean M_FileExists(char *filename)
 	{
 		return false;
 	}*/
-	puts("M_FileExists");
+    printf("M_FileExists %s\n", filename);
+    return blit::File().open(filename); //
+
 	return true;
 #endif
 }
