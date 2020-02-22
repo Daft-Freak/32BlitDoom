@@ -39,6 +39,12 @@ rcsid[] = "$Id: i_x.c,v 1.6 1997/02/03 22:45:10 b1 Exp $";
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "engine/engine.hpp"
+
+#define GFX_RGB565(r, g, b) ((r >> 3) << 11) | ((g >> 2) << 5) | (b >> 3)
+#define GFX_RGB565_R(rgb) ((rgb >> 11) << 3)
+#define GFX_RGB565_G(rgb) (((rgb >> 5) & 0x3F) << 2)
+#define GFX_RGB565_B(rgb) ((rgb & 0x1F) << 3)
 
 // The screen buffer; this is modified to draw things to the screen
 
@@ -320,6 +326,9 @@ void I_FinishUpdate (void)
 		for (x = 0; x < SCREENWIDTH; x++)
 		{
 			index = I_VideoBuffer[y * SCREENWIDTH + x];
+			blit::screen.ptr(x, y)[0] = GFX_RGB565_R(rgb565_palette[index]);
+			blit::screen.ptr(x, y)[1] = GFX_RGB565_G(rgb565_palette[index]);
+			blit::screen.ptr(x, y)[2] = GFX_RGB565_B(rgb565_palette[index]);
 
 			//((uint16_t*)lcd_frame_buffer)[x * GFX_MAX_WIDTH + (GFX_MAX_WIDTH - y - 1)] = rgb565_palette[index];
 		}
@@ -350,9 +359,9 @@ void I_SetPalette (byte* palette)
 	{
 		c = (col_t*)palette;
 
-		//rgb565_palette[i] = GFX_RGB565(gammatable[usegamma][c->r],
-		//							   gammatable[usegamma][c->g],
-		//							   gammatable[usegamma][c->b]);
+		rgb565_palette[i] = GFX_RGB565(gammatable[usegamma][c->r],
+									   gammatable[usegamma][c->g],
+									   gammatable[usegamma][c->b]);
 
 		palette += 3;
 	}
@@ -371,9 +380,9 @@ int I_GetPaletteIndex (int r, int g, int b)
 
     for (i = 0; i < 256; ++i)
     {
-    	//color.r = GFX_RGB565_R(rgb565_palette[i]);
-    	//color.g = GFX_RGB565_G(rgb565_palette[i]);
-    	//color.b = GFX_RGB565_B(rgb565_palette[i]);
+    	color.r = GFX_RGB565_R(rgb565_palette[i]);
+    	color.g = GFX_RGB565_G(rgb565_palette[i]);
+    	color.b = GFX_RGB565_B(rgb565_palette[i]);
 
         diff = (r - color.r) * (r - color.r)
              + (g - color.g) * (g - color.g)
