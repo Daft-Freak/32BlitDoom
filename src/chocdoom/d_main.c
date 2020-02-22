@@ -440,6 +440,9 @@ void D_DoomLoop (void)
         wipegamestate = gamestate;
     }
 
+    //
+    return;
+
     while (1)
     {
 		// frame syncronous IO operations
