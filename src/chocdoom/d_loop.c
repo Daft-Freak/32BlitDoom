@@ -776,7 +776,7 @@ void TryRunTics (void)
         // Don't stay in this loop forever.  The menu is still running,
         // so return to update the screen
 
-	if (I_GetTime() / ticdup - entertic > 0)
+	//if (I_GetTime() / ticdup - entertic > 0)
 	{
 	    return;
 	}
