@@ -200,8 +200,8 @@ typedef struct line_s
 
     // Front and back sector.
     // Note: redundant? Can be retrieved from SideDefs.
-    sector_t*	frontsector;
-    sector_t*	backsector;
+    //sector_t*	frontsector;
+    //sector_t*	backsector;
 
     // if == validcount, already checked
     int		validcount;

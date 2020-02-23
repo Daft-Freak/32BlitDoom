@@ -351,14 +351,18 @@ EV_DoFloor
 	    break;
 
 	  case raiseFloor24AndChange:
+	  {
 	    floor->direction = 1;
 	    floor->sector = sec;
 	    floor->speed = FLOORSPEED;
 	    floor->floordestheight = floor->sector->floorheight +
 		24 * FRACUNIT;
-	    sec->floorpic = line->frontsector->floorpic;
-	    sec->special = line->frontsector->special;
+
+		sector_t *frontsector = line->sidenum[0] == -1 ? 0 : sides[lines->sidenum[0]].sector;
+	    sec->floorpic = frontsector->floorpic;
+	    sec->special = frontsector->special;
 	    break;
+	  }
 
 	  case raiseToTexture:
 	  {
@@ -507,13 +511,13 @@ EV_BuildStairs
 		if ( !((sec->lines[i])->flags & ML_TWOSIDED) )
 		    continue;
 					
-		tsec = (sec->lines[i])->frontsector;
+		tsec = sec->lines[i]->sidenum[0] == -1 ? 0 : sides[sec->lines[i]->sidenum[0]].sector; // frontsector
 		newsecnum = tsec-sectors;
 		
 		if (secnum != newsecnum)
 		    continue;
 
-		tsec = (sec->lines[i])->backsector;
+		tsec = sec->lines[i]->sidenum[1] == -1 ? 0 : sides[sec->lines[i]->sidenum[1]].sector; // backsector
 		newsecnum = tsec - sectors;
 
 		if (tsec->floorpic != texture)

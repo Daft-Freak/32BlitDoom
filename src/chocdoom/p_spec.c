@@ -253,11 +253,14 @@ getNextSector
 {
     if (!(line->flags & ML_TWOSIDED))
 	return NULL;
-		
-    if (line->frontsector == sec)
-	return line->backsector;
+
+    sector_t *frontsector = line->sidenum[0] == -1 ? 0 : sides[line->sidenum[0]].sector;
+    sector_t *backsector = line->sidenum[1] == -1 ? 0 : sides[line->sidenum[1]].sector;
+
+    if (frontsector == sec)
+	return backsector;
 	
-    return line->frontsector;
+    return frontsector;
 }
 
 
@@ -1298,7 +1301,7 @@ int EV_DoDonut(line_t*	line)
 
 	for (i = 0; i < s2->linecount; i++)
 	{
-	    s3 = s2->lines[i]->backsector;
+	    s3 = s2->lines[i]->sidenum[1] == -1 ? 0 : sides[s2->lines[i]->sidenum[1]].sector; // backsector
 
 	    if (s3 == s1)
 		continue;

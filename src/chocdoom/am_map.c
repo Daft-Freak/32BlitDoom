@@ -1135,7 +1135,11 @@ void AM_drawWalls(void)
 	{
 	    if ((lines[i].flags & LINE_NEVERSEE) && !cheating)
 		continue;
-	    if (!lines[i].backsector)
+
+        sector_t *frontsector = lines[i].sidenum[0] == -1 ? 0 : sides[lines[i].sidenum[0]].sector;
+        sector_t *backsector = lines[i].sidenum[1] == -1 ? 0 : sides[lines[i].sidenum[1]].sector;
+
+	    if (!backsector)
 	    {
 		AM_drawMline(&l, WALLCOLORS+lightlev);
 	    }
@@ -1150,12 +1154,12 @@ void AM_drawWalls(void)
 		    if (cheating) AM_drawMline(&l, SECRETWALLCOLORS + lightlev);
 		    else AM_drawMline(&l, WALLCOLORS+lightlev);
 		}
-		else if (lines[i].backsector->floorheight
-			   != lines[i].frontsector->floorheight) {
+		else if (backsector->floorheight
+			   != frontsector->floorheight) {
 		    AM_drawMline(&l, FDWALLCOLORS + lightlev); // floor level change
 		}
-		else if (lines[i].backsector->ceilingheight
-			   != lines[i].frontsector->ceilingheight) {
+		else if (backsector->ceilingheight
+			   != frontsector->ceilingheight) {
 		    AM_drawMline(&l, CDWALLCOLORS+lightlev); // ceiling level change
 		}
 		else if (cheating) {

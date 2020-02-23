@@ -310,8 +310,8 @@ void P_LineOpening (line_t* linedef)
 	return;
     }
 	 
-    front = linedef->frontsector;
-    back = linedef->backsector;
+    front = linedef->sidenum[0] == -1 ? 0 : sides[linedef->sidenum[0]].sector;
+    back = linedef->sidenum[1] == -1 ? 0 : sides[linedef->sidenum[1]].sector;
 	
     if (front->ceilingheight < back->ceilingheight)
 	opentop = front->ceilingheight;
@@ -595,9 +595,10 @@ PIT_AddLineIntercepts (line_t* ld)
 	return true;	// behind source
 	
     // try to early out the check
+    sector_t *backsector = ld->sidenum[1] == -1 ? 0 : sides[ld->sidenum[1]].sector;
     if (earlyout
 	&& frac < FRACUNIT
-	&& !ld->backsector)
+	&& !backsector)
     {
 	return false;	// stop checking
     }

@@ -189,7 +189,7 @@ boolean P_CrossSubsector (int num)
         // Backsector may be NULL if this is an "impassible
         // glass" hack line.
 
-        if (line->backsector == NULL)
+        if (line->sidenum[1] == -1)
         {
             return false;
         }

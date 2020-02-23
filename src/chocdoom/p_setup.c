@@ -452,15 +452,6 @@ void P_LoadLineDefs (int lump)
 	ld->sidenum[0] = SHORT(mld->sidenum[0]);
 	ld->sidenum[1] = SHORT(mld->sidenum[1]);
 
-	if (ld->sidenum[0] != -1)
-	    ld->frontsector = sides[ld->sidenum[0]].sector;
-	else
-	    ld->frontsector = 0;
-
-	if (ld->sidenum[1] != -1)
-	    ld->backsector = sides[ld->sidenum[1]].sector;
-	else
-	    ld->backsector = 0;
     }
 
     W_ReleaseLumpNum(lump);
@@ -573,11 +564,14 @@ void P_GroupLines (void)
     for (i=0 ; i<numlines ; i++, li++)
     {
 	totallines++;
-	li->frontsector->linecount++;
 
-	if (li->backsector && li->backsector != li->frontsector)
+    sector_t *frontsector = li->sidenum[0] == -1 ? 0 : sides[li->sidenum[0]].sector;
+    sector_t *backsector = li->sidenum[1] == -1 ? 0 : sides[li->sidenum[1]].sector;
+	frontsector->linecount++;
+
+	if (backsector && backsector != frontsector)
 	{
-	    li->backsector->linecount++;
+	    backsector->linecount++;
 	    totallines++;
 	}
     }
@@ -604,17 +598,20 @@ void P_GroupLines (void)
     { 
         li = &lines[i];
 
-        if (li->frontsector != NULL)
+        sector_t *frontsector = li->sidenum[0] == -1 ? 0 : sides[li->sidenum[0]].sector;
+        sector_t *backsector = li->sidenum[1] == -1 ? 0 : sides[li->sidenum[1]].sector;
+
+        if (frontsector != NULL)
         {
-            sector = li->frontsector;
+            sector = frontsector;
 
             sector->lines[sector->linecount] = li;
             ++sector->linecount;
         }
 
-        if (li->backsector != NULL && li->frontsector != li->backsector)
+        if (backsector != NULL && frontsector != backsector)
         {
-            sector = li->backsector;
+            sector = backsector;
 
             sector->lines[sector->linecount] = li;
             ++sector->linecount;
