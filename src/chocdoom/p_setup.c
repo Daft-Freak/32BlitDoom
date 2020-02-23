@@ -509,10 +509,12 @@ void P_LoadBlockMap (int lump)
 
     lumplen = W_LumpLength(lump);
     count = lumplen / 2;
-	
+
+#ifdef SYS_LITTLE_ENDIAN
+    blockmaplump = W_CacheLumpNum(lump, PU_LEVEL);
+#else
     blockmaplump = Z_Malloc(lumplen, PU_LEVEL, NULL);
     W_ReadLump(lump, blockmaplump);
-    blockmap = blockmaplump + 4;
 
     // Swap all short integers to native byte ordering.
   
@@ -520,6 +522,9 @@ void P_LoadBlockMap (int lump)
     {
 	blockmaplump[i] = SHORT(blockmaplump[i]);
     }
+#endif
+
+    blockmap = blockmaplump + 4;
 		
     // Read the header
 
