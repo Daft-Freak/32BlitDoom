@@ -68,7 +68,7 @@ static wad_file_t *W_StdC_OpenFile(char *path)
 
     result = Z_Malloc(sizeof(stdc_wad_file_t), PU_STATIC, 0);
 	result->wad.file_class = &stdc_wad_file;
-	result->wad.mapped = NULL;
+	result->wad.mapped = file.get_ptr();
 	result->wad.length = M_FileLength(file);
     new (&result->fstream) blit::File(std::move(file));
 

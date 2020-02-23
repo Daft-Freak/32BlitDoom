@@ -1,5 +1,7 @@
 #include "main.h"
 
+#include "assets.hpp"
+
 #include "../chocdoom/doomstat.h"
 #include "../chocdoom/s_sound.h"
 
@@ -32,6 +34,9 @@ extern "C" void *_sbrk(ptrdiff_t incr)
 void init()
 {
     blit::set_screen_mode(blit::ScreenMode::hires);
+
+    blit::File::add_buffer_file("doom-data/doom1.wad", doom1_wad, doom1_wad_length);
+
     D_DoomMain();
 }
 
