@@ -412,16 +412,16 @@ void P_LoadLineDefs (int lump)
 	ld->tag = SHORT(mld->tag);
 	v1 = ld->v1 = &vertexes[SHORT(mld->v1)];
 	v2 = ld->v2 = &vertexes[SHORT(mld->v2)];
-	ld->dx = v2->x - v1->x;
-	ld->dy = v2->y - v1->y;
+	fixed_t dx = v2->x - v1->x;
+	fixed_t dy = v2->y - v1->y;
 	
-	if (!ld->dx)
+	if (!dx)
 	    ld->slopetype = ST_VERTICAL;
-	else if (!ld->dy)
+	else if (!dy)
 	    ld->slopetype = ST_HORIZONTAL;
 	else
 	{
-	    if (FixedDiv (ld->dy , ld->dx) > 0)
+	    if (FixedDiv (dy, dx) > 0)
 		ld->slopetype = ST_POSITIVE;
 	    else
 		ld->slopetype = ST_NEGATIVE;

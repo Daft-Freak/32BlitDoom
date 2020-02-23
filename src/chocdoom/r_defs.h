@@ -179,8 +179,8 @@ typedef struct line_s
     vertex_t*	v2;
 
     // Precalculated v2 - v1 for side checking.
-    fixed_t	dx;
-    fixed_t	dy;
+    //fixed_t	dx;
+    //fixed_t	dy;
 
     // Animation related.
     short	flags;

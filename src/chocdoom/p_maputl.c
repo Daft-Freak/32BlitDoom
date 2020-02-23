@@ -67,27 +67,30 @@ P_PointOnLineSide
     fixed_t	dy;
     fixed_t	left;
     fixed_t	right;
+
+    fixed_t ldx = line->v2->x - line->v1->x;
+    fixed_t ldy = line->v2->y - line->v1->y;
 	
-    if (!line->dx)
+    if (!ldx)
     {
 	if (x <= line->v1->x)
-	    return line->dy > 0;
+	    return ldy > 0;
 	
-	return line->dy < 0;
+	return ldy < 0;
     }
-    if (!line->dy)
+    if (!ldy)
     {
 	if (y <= line->v1->y)
-	    return line->dx < 0;
+	    return ldx < 0;
 	
-	return line->dx > 0;
+	return ldx > 0;
     }
 	
     dx = (x - line->v1->x);
     dy = (y - line->v1->y);
 	
-    left = FixedMul ( line->dy>>FRACBITS , dx );
-    right = FixedMul ( dy , line->dx>>FRACBITS );
+    left = FixedMul ( ldy>>FRACBITS , dx );
+    right = FixedMul ( dy , ldx>>FRACBITS );
 	
     if (right < left)
 	return 0;		// front side
@@ -109,12 +112,15 @@ P_BoxOnLineSide
     int		p1 = 0;
     int		p2 = 0;
 	
+    fixed_t ldx = ld->v2->x - ld->v1->x;
+    fixed_t ldy = ld->v2->y - ld->v1->y;
+
     switch (ld->slopetype)
     {
       case ST_HORIZONTAL:
 	p1 = tmbox[BOXTOP] > ld->v1->y;
 	p2 = tmbox[BOXBOTTOM] > ld->v1->y;
-	if (ld->dx < 0)
+	if (ldx < 0)
 	{
 	    p1 ^= 1;
 	    p2 ^= 1;
@@ -124,7 +130,7 @@ P_BoxOnLineSide
       case ST_VERTICAL:
 	p1 = tmbox[BOXRIGHT] < ld->v1->x;
 	p2 = tmbox[BOXLEFT] < ld->v1->x;
-	if (ld->dy < 0)
+	if (ldy < 0)
 	{
 	    p1 ^= 1;
 	    p2 ^= 1;
@@ -209,8 +215,8 @@ P_MakeDivline
 {
     dl->x = li->v1->x;
     dl->y = li->v1->y;
-    dl->dx = li->dx;
-    dl->dy = li->dy;
+    dl->dx = li->v2->x - li->v1->x;
+    dl->dy = li->v2->y - li->v1->y;
 }
 
 
