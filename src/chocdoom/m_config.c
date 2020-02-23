@@ -1725,6 +1725,11 @@ static int ParseIntParameter(char *strparm)
     return parm;
 }
 
+//
+extern "C" char *strdup (const char *);
+//
+
+
 static void SetVariable(default_t *def, char *value)
 {
     int intparm;

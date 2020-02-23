@@ -401,6 +401,10 @@ static boolean DirIsFile(char *path, char *filename)
         && !strcasecmp(&path[path_len - filename_len], filename);
 }
 
+//
+extern "C" char *strdup (const char *);
+//
+
 // Check if the specified directory contains the specified IWAD
 // file, returning the full path to the IWAD if found, or NULL
 // if not found.
