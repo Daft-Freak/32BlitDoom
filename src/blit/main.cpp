@@ -9,6 +9,7 @@ extern void D_Display();
 
 void init()
 {
+    blit::set_screen_mode(blit::ScreenMode::hires);
     D_DoomMain();
 }
 
