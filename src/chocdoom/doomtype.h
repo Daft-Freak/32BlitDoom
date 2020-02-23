@@ -66,7 +66,7 @@
 
 // Use builtin bool type with C++.
 
-typedef int/*bool*/ boolean;
+typedef bool boolean;
 
 #else
 
