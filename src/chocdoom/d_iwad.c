@@ -54,8 +54,11 @@ static const iwad_t iwads[] =
 // Array of locations to search for IWAD files
 //
 // "128 IWAD search directories should be enough for anybody".
-
+#if ORIGCODE
 #define MAX_IWAD_DIRS 128
+#else
+#define MAX_IWAD_DIRS 1
+#endif
 
 static boolean iwad_dirs_built = false;
 static char *iwad_dirs[MAX_IWAD_DIRS];
