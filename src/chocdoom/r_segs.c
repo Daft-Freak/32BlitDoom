@@ -108,7 +108,7 @@ R_RenderMaskedSegRange
     //   for horizontal / vertical / diagonal. Diagonal?
     // OPTIMIZE: get rid of LIGHTSEGSHIFT globally
     curline = ds->curline;
-    frontsector = curline->frontsector;
+    frontsector = curline->sidedef->sector;
     backsector = curline->backsector;
     texnum = texturetranslation[curline->sidedef->midtexture];
 	

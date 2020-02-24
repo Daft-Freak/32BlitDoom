@@ -199,7 +199,6 @@ void P_LoadSegs (int lump)
 	li->linedef = ldef;
 	side = SHORT(ml->side);
 	li->sidedef = &sides[ldef->sidenum[side]];
-	li->frontsector = sides[ldef->sidenum[side]].sector;
 
         if (ldef-> flags & ML_TWOSIDED)
         {

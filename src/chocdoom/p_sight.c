@@ -200,7 +200,7 @@ boolean P_CrossSubsector (int num)
 	    return false;
 	
 	// crosses a two sided line
-	front = seg->frontsector;
+	front = seg->sidedef->sector;
 	back = seg->backsector;
 
 	// no wall to block sight with?
