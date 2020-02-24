@@ -64,6 +64,8 @@ typedef struct
 memzone_t*	mainzone;
 
 
+#define NUM_MEMZONES 1
+memzone_t* memzones[NUM_MEMZONES];
 
 //
 // Z_ClearZone
@@ -89,7 +91,31 @@ void Z_ClearZone (memzone_t* zone)
     block->size = zone->size - sizeof(memzone_t);
 }
 
+static void InitZone(byte *base, int size, memzone_t **zoneptr)
+{
+    memblock_t*	block;
 
+    memzone_t *zone = (memzone_t *)base;
+    zone->size = size;
+
+    // set the entire zone to one free block
+    zone->blocklist.next =
+	zone->blocklist.prev =
+	block = (memblock_t *)( (byte *)zone + sizeof(memzone_t) );
+
+    zone->blocklist.user = (void *)zone;
+    zone->blocklist.tag = PU_STATIC;
+    zone->rover = block;
+
+    block->prev = block->next = &zone->blocklist;
+
+    // free block
+    block->tag = PU_FREE;
+    
+    block->size = zone->size - sizeof(memzone_t);
+
+    *zoneptr = zone;
+}
 
 //
 // Z_Init
@@ -99,24 +125,10 @@ void Z_Init (void)
     memblock_t*	block;
     int		size;
 
-    mainzone = (memzone_t *)I_ZoneBase (&size);
-    mainzone->size = size;
+    byte *base = I_ZoneBase (&size);
+    InitZone(base, size, &mainzone);
 
-    // set the entire zone to one free block
-    mainzone->blocklist.next =
-	mainzone->blocklist.prev =
-	block = (memblock_t *)( (byte *)mainzone + sizeof(memzone_t) );
-
-    mainzone->blocklist.user = (void *)mainzone;
-    mainzone->blocklist.tag = PU_STATIC;
-    mainzone->rover = block;
-	
-    block->prev = block->next = &mainzone->blocklist;
-
-    // free block
-    block->tag = PU_FREE;
-    
-    block->size = mainzone->size - sizeof(memzone_t);
+    memzones[0] = mainzone;
 }
 
 
@@ -153,8 +165,9 @@ void Z_Free (void* ptr)
         other->next = block->next;
         other->next->prev = other;
 
-        if (block == mainzone->rover)
-            mainzone->rover = other;
+        for(int i = 0; i < NUM_MEMZONES; i++)
+            if (block == memzones[i]->rover)
+                memzones[i]->rover = other;
 
         block = other;
     }
@@ -167,8 +180,9 @@ void Z_Free (void* ptr)
         block->next = other->next;
         block->next->prev = block;
 
-        if (other == mainzone->rover)
-            mainzone->rover = block;
+        for(int i = 0; i < NUM_MEMZONES; i++)
+            if (other == memzones[i]->rover)
+                memzones[i]->rover = block;
     }
 }
 
@@ -193,9 +207,10 @@ Z_Malloc
     memblock_t* newblock;
     memblock_t*	base;
     void *result;
+    int i;
 
     size = (size + MEM_ALIGN - 1) & ~(MEM_ALIGN - 1);
-    
+
     // scan through the block list,
     // looking for the first free block
     // of sufficient size,
@@ -204,50 +219,59 @@ Z_Malloc
     // account for size of block header
     size += sizeof(memblock_t);
     
-    // if there is a free block behind the rover,
-    //  back up over them
-    base = mainzone->rover;
-    
-    if (base->prev->tag == PU_FREE)
-        base = base->prev;
-	
-    rover = base;
-    start = base->prev;
-	
-    do
+
+    for(i = 0; i < NUM_MEMZONES; i++)
     {
-        if (rover == start)
+        // if there is a free block behind the rover,
+        //  back up over them
+        base = memzones[i]->rover;
+        
+        if (base->prev->tag == PU_FREE)
+            base = base->prev;
+        
+        rover = base;
+        start = base->prev;
+        
+        do
         {
             // scanned all the way around the list
-            I_Error ("Z_Malloc: failed on allocation of %i bytes", size);
-        }
-	
-        if (rover->tag != PU_FREE)
-        {
-            if (rover->tag < PU_PURGELEVEL)
+            if (rover == start)
+                break;
+        
+            if (rover->tag != PU_FREE)
             {
-                // hit a block that can't be purged,
-                // so move base past it
-                base = rover = rover->next;
+                if (rover->tag < PU_PURGELEVEL)
+                {
+                    // hit a block that can't be purged,
+                    // so move base past it
+                    base = rover = rover->next;
+                }
+                else
+                {
+                    // free the rover block (adding the size to base)
+
+                    // the rover can be the base block
+                    base = base->prev;
+                    Z_Free ((byte *)rover+sizeof(memblock_t));
+                    base = base->next;
+                    rover = base->next;
+                }
             }
             else
             {
-                // free the rover block (adding the size to base)
-
-                // the rover can be the base block
-                base = base->prev;
-                Z_Free ((byte *)rover+sizeof(memblock_t));
-                base = base->next;
-                rover = base->next;
+                rover = rover->next;
             }
-        }
-        else
-        {
-            rover = rover->next;
-        }
 
-    } while (base->tag != PU_FREE || base->size < size);
+        } while (base->tag != PU_FREE || base->size < size);
 
+        if(base->tag == PU_FREE && base->size >= size)
+            break;
+
+        base = NULL;
+    }
+
+    if(!base)
+        I_Error ("Z_Malloc: failed on allocation of %i bytes", size);
     
     // found a block big enough
     extra = base->size - size;
@@ -282,7 +306,7 @@ Z_Malloc
     }
 
     // next allocation will start looking here
-    mainzone->rover = base->next;	
+    memzones[i]->rover = base->next;	
 	
     base->id = ZONEID;
     
@@ -301,24 +325,26 @@ Z_FreeTags
 {
     memblock_t*	block;
     memblock_t*	next;
-	
-    for (block = mainzone->blocklist.next ;
-	 block != &mainzone->blocklist ;
-	 block = next)
+	for(int i = 0; i < NUM_MEMZONES; i++)
     {
-	// get link before freeing
-	next = block->next;
+        for (block = memzones[i]->blocklist.next ;
+        block != &memzones[i]->blocklist ;
+        block = next)
+        {
+        // get link before freeing
+        next = block->next;
 
-	// free block?
-	if (block->tag == PU_FREE)
-	    continue;
-	
-	if (block->tag >= lowtag && block->tag <= hightag)
-	    Z_Free ( (byte *)block+sizeof(memblock_t));
+        // free block?
+        if (block->tag == PU_FREE)
+            continue;
+        
+        if (block->tag >= lowtag && block->tag <= hightag)
+            Z_Free ( (byte *)block+sizeof(memblock_t));
+        }
     }
 }
 
-
+// TODO: everything below only looks at mainzone
 
 //
 // Z_DumpHeap
