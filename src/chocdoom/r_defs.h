@@ -207,7 +207,7 @@ typedef struct line_s
     int		validcount;
 
     // thinker_t for reversable actions
-    void*	specialdata;		
+    //void*	specialdata;		
 } line_t;
 
 
