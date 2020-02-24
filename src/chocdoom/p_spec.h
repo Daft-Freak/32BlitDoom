@@ -122,9 +122,9 @@ typedef struct
 {
     thinker_t	thinker;
     sector_t*	sector;
-    int		count;
-    int		maxlight;
-    int		minlight;
+    char		count;
+    short		maxlight;
+    short		minlight;
     
 } fireflicker_t;
 
@@ -134,11 +134,11 @@ typedef struct
 {
     thinker_t	thinker;
     sector_t*	sector;
-    int		count;
-    int		maxlight;
-    int		minlight;
-    int		maxtime;
-    int		mintime;
+    short		maxlight;
+    short		minlight;
+    char		count;
+    char		maxtime;
+    char		mintime;
     
 } lightflash_t;
 
@@ -148,11 +148,11 @@ typedef struct
 {
     thinker_t	thinker;
     sector_t*	sector;
-    int		count;
-    int		minlight;
-    int		maxlight;
-    int		darktime;
-    int		brighttime;
+    short		minlight;
+    short		maxlight;
+    char		count;
+    char		darktime;
+    char		brighttime;
     
 } strobe_t;
 
@@ -163,8 +163,8 @@ typedef struct
 {
     thinker_t	thinker;
     sector_t*	sector;
-    int		minlight;
-    int		maxlight;
+    short		minlight;
+    short		maxlight;
     int		direction;
 
 } glow_t;
