@@ -235,7 +235,8 @@ Z_Malloc
         do
         {
             // scanned all the way around the list
-            if (rover == start)
+            // ... but continue if it's purgable
+            if (rover == start && (start->idtag & 0xFF) < PU_PURGELEVEL)
                 break;
         
             if (rover->idtag != PU_FREE)
