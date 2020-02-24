@@ -124,10 +124,12 @@ R_InstallSpriteLump
 		     "and a rot=0 lump", spritename, 'A'+frame);
 			
 	sprtemp[frame].rotate = false;
+    sprtemp[frame].flip = 0;
 	for (r=0 ; r<8 ; r++)
 	{
 	    sprtemp[frame].lump[r] = lump - firstspritelump;
-	    sprtemp[frame].flip[r] = (byte)flipped;
+        if(flipped)
+	        sprtemp[frame].flip |= 1 << r;
 	}
 	return;
     }
@@ -147,7 +149,10 @@ R_InstallSpriteLump
 		 spritename, 'A'+frame, '1'+rotation);
 		
     sprtemp[frame].lump[rotation] = lump - firstspritelump;
-    sprtemp[frame].flip[rotation] = (byte)flipped;
+    if(flipped)
+        sprtemp[frame].flip |= 1 << rotation;
+    else
+        sprtemp[frame].flip &= ~(1 << rotation);
 }
 
 
@@ -514,13 +519,13 @@ void R_ProjectSprite (mobj_t* thing)
 	ang = R_PointToAngle (thing->x, thing->y);
 	rot = (ang-thing->angle+(unsigned)(ANG45/2)*9)>>29;
 	lump = sprframe->lump[rot];
-	flip = (boolean)sprframe->flip[rot];
+	flip = (boolean)sprframe->flip & (1 << rot);
     }
     else
     {
 	// use single rotation for all views
 	lump = sprframe->lump[0];
-	flip = (boolean)sprframe->flip[0];
+	flip = (boolean)sprframe->flip & 1;
     }
     
     // calculate edges of the shape
@@ -662,7 +667,7 @@ void R_DrawPSprite (pspdef_t* psp)
     sprframe = &sprdef->spriteframes[ psp->state->frame & FF_FRAMEMASK ];
 
     lump = sprframe->lump[0];
-    flip = (boolean)sprframe->flip[0];
+    flip = (boolean)sprframe->flip & 1;
     
     // calculate edges of the shape
     tx = psp->sx-160*FRACUNIT;
