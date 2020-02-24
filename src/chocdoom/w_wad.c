@@ -538,6 +538,8 @@ void W_Profile (void)
 
 void W_GenerateHashTable(void)
 {
+    return; //
+
     unsigned int i;
 
     // Free the old hash table, if there is one
