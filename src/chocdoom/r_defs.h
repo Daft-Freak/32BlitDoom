@@ -105,7 +105,10 @@ typedef	struct
     short	tag;
 
     // 0 = untraversed, 1,2 = sndlines -1
-    int		soundtraversed;
+    short		soundtraversed;
+
+    // if == validcount, already checked
+    int		validcount;
 
     // thing that made a sound (or null)
     mobj_t*	soundtarget;
@@ -115,9 +118,6 @@ typedef	struct
 
     // origin for any sounds played by the sector
     degenmobj_t	soundorg;
-
-    // if == validcount, already checked
-    int		validcount;
 
     // list of mobjs in sector
     mobj_t*	thinglist;
@@ -189,14 +189,14 @@ typedef struct line_s
 
     // Visual appearance: SideDefs.
     //  sidenum[1] will be -1 if one sided
-    short	sidenum[2];			
+    short	sidenum[2];		
+	
+    // To aid move clipping.
+    slopetype_t	slopetype;
 
     // Neat. Another bounding box, for the extent
     //  of the LineDef.
     fixed_t	bbox[4];
-
-    // To aid move clipping.
-    slopetype_t	slopetype;
 
     // Front and back sector.
     // Note: redundant? Can be retrieved from SideDefs.
@@ -392,7 +392,7 @@ typedef struct
     // If false use 0 for any position.
     // Note: as eight entries are available,
     //  we might as well insert the same name eight times.
-    boolean	rotate;
+    /*boolean*/int rotate;
 
     // Lump to use for view angles 0-7.
     short	lump[8];
@@ -424,9 +424,9 @@ typedef struct
 {
   fixed_t		height;
   int			picnum;
-  int			lightlevel;
-  int			minx;
-  int			maxx;
+  short			lightlevel;
+  short			minx;
+  short			maxx;
   
   // leave pads for [minx-1]/[maxx+1]
   
