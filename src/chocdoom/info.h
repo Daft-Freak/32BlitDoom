@@ -24,7 +24,7 @@
 // Needed for action function pointer handling.
 #include "d_think.h"
 
-typedef enum
+typedef enum : unsigned char
 {
     SPR_TROO,
     SPR_SHTG,
@@ -168,7 +168,7 @@ typedef enum
 
 } spritenum_t;
 
-typedef enum
+typedef enum : short
 {
     S_NULL,
     S_LIGHTDONE,
@@ -1156,7 +1156,7 @@ typedef struct
 extern state_t	states[NUMSTATES];
 extern char *sprnames[];
 
-typedef enum {
+typedef enum : unsigned char{
     MT_PLAYER,
     MT_POSSESSED,
     MT_SHOTGUY,
