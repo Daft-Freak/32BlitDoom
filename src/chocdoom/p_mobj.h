@@ -245,14 +245,16 @@ typedef struct mobj_s
 
     //mobjinfo_t*		info;	// &mobjinfo[mobj->type]
     
-    int			tics;	// state tic counter
+    short			tics;	// state tic counter
+    char			reactiontime;
+    char			threshold;
     state_t*		state;
     int			flags;
-    int			health;
+    short			health;
 
     // Movement direction, movement generation (zig-zagging).
     //int			movedir;	// 0-7
-    int			movecount;	// when 0, select a new dir
+    short			movecount;	// when 0, select a new dir
 
     // Thing being chased/attacked (or NULL),
     // also the originator for missiles.
@@ -260,11 +262,11 @@ typedef struct mobj_s
 
     // Reaction time: if non 0, don't attack yet.
     // Used by player to freeze a bit after teleporting.
-    int			reactiontime;   
+    //int			reactiontime;   
 
     // If >0, the target will be chased
     // no matter what (even if shot)
-    int			threshold;
+    //int			threshold;
 
     // Additional info record for player avatars only.
     // Only valid if type == MT_PLAYER
