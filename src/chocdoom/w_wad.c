@@ -110,11 +110,11 @@ static void ExtendLumpInfo(int newnumlumps)
 
         // We shouldn't be generating a hash table until after all WADs have
         // been loaded, but just in case...
-        if (lumpinfo[i].next != NULL)
+        /*if (lumpinfo[i].next != NULL)
         {
             int nextlumpnum = lumpinfo[i].next - lumpinfo;
             newlumpinfo[i].next = &newlumpinfo[nextlumpnum];
-        }
+        }*/
     }
 
     // All done.
@@ -260,7 +260,7 @@ int W_CheckNumForName (char* name)
 
     // Do we have a hash table yet?
 
-    if (lumphash != NULL)
+    /*if (lumphash != NULL)
     {
         int hash;
         
@@ -276,7 +276,7 @@ int W_CheckNumForName (char* name)
             }
         }
     } 
-    else
+    else*/
     {
         // We don't have a hash table generate yet. Linear search :-(
         // 
@@ -538,9 +538,7 @@ void W_Profile (void)
 
 void W_GenerateHashTable(void)
 {
-    return; //
-
-    unsigned int i;
+    /*unsigned int i;
 
     // Free the old hash table, if there is one
 
@@ -566,7 +564,7 @@ void W_GenerateHashTable(void)
             lumpinfo[i].next = lumphash[hash];
             lumphash[hash] = &lumpinfo[i];
         }
-    }
+    }*/
 
     // All done!
 }

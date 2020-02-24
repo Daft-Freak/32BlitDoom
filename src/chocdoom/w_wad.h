@@ -48,7 +48,7 @@ struct lumpinfo_s
 
     // Used for hash table lookups
 
-    lumpinfo_t *next;
+    //lumpinfo_t *next;
 };
 
 
