@@ -299,14 +299,14 @@ boolean PIT_CheckThing (mobj_t* thing)
     // check for skulls slamming into things
     if (tmthing->flags & MF_SKULLFLY)
     {
-	damage = ((P_Random()%8)+1)*tmthing->info->damage;
+	damage = ((P_Random()%8)+1)*mobjinfo[tmthing->type].damage;
 	
 	P_DamageMobj (thing, tmthing, tmthing, damage);
 	
 	tmthing->flags &= ~MF_SKULLFLY;
 	tmthing->momx = tmthing->momy = tmthing->momz = 0;
 	
-	P_SetMobjState (tmthing, tmthing->info->spawnstate);
+	P_SetMobjState (tmthing, mobjinfo[tmthing->type].spawnstate);
 	
 	return false;		// stop moving
     }
@@ -349,7 +349,7 @@ boolean PIT_CheckThing (mobj_t* thing)
 	}
 	
 	// damage / explode
-	damage = ((P_Random()%8)+1)*tmthing->info->damage;
+	damage = ((P_Random()%8)+1)*mobjinfo[tmthing->type].damage;
 	P_DamageMobj (thing, tmthing, tmthing->target, damage);
 
 	// don't traverse any more

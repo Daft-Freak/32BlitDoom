@@ -215,6 +215,9 @@ typedef struct mobj_s
     //More drawing info: to determine current sprite.
     angle_t		angle;	// orientation
     spritenum_t		sprite;	// used to find patch_t and flip value
+    mobjtype_t		type;
+    char movedir;
+    char lastlook;
     int			frame;	// might be ORed with FF_FULLBRIGHT
 
     // Interaction info, by BLOCKMAP.
@@ -240,8 +243,7 @@ typedef struct mobj_s
     // If == validcount, already checked.
     int			validcount;
 
-    mobjtype_t		type;
-    mobjinfo_t*		info;	// &mobjinfo[mobj->type]
+    //mobjinfo_t*		info;	// &mobjinfo[mobj->type]
     
     int			tics;	// state tic counter
     state_t*		state;
@@ -249,7 +251,7 @@ typedef struct mobj_s
     int			health;
 
     // Movement direction, movement generation (zig-zagging).
-    int			movedir;	// 0-7
+    //int			movedir;	// 0-7
     int			movecount;	// when 0, select a new dir
 
     // Thing being chased/attacked (or NULL),
@@ -269,7 +271,7 @@ typedef struct mobj_s
     struct player_s*	player;
 
     // Player number last looked for.
-    int			lastlook;	
+    //int			lastlook;	
 
     // For nightmare respawn.
     mapthing_t		spawnpoint;	

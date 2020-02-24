@@ -714,19 +714,19 @@ P_KillMobj
 	
     }
 
-    if (target->health < -target->info->spawnhealth 
-	&& target->info->xdeathstate)
+    if (target->health < -mobjinfo[target->type].spawnhealth 
+	&& mobjinfo[target->type].xdeathstate)
     {
-	P_SetMobjState (target, target->info->xdeathstate);
+	P_SetMobjState (target, mobjinfo[target->type].xdeathstate);
     }
     else
-	P_SetMobjState (target, target->info->deathstate);
+	P_SetMobjState (target, mobjinfo[target->type].deathstate);
     target->tics -= P_Random()&3;
 
     if (target->tics < 1)
 	target->tics = 1;
 		
-    //	I_StartSound (&actor->r, actor->info->deathsound);
+    //	I_StartSound (&actor->r, mobjinfo[actor->type].deathsound);
 
     // In Chex Quest, monsters don't drop items.
 
@@ -818,7 +818,7 @@ P_DamageMobj
 				target->x,
 				target->y);
 		
-	thrust = damage*(FRACUNIT>>3)*100/target->info->mass;
+	thrust = damage*(FRACUNIT>>3)*100/mobjinfo[target->type].mass;
 
 	// make fall forwards sometimes
 	if ( damage < 40
@@ -895,12 +895,12 @@ P_DamageMobj
 	return;
     }
 
-    if ( (P_Random () < target->info->painchance)
+    if ( (P_Random () < mobjinfo[target->type].painchance)
 	 && !(target->flags&MF_SKULLFLY) )
     {
 	target->flags |= MF_JUSTHIT;	// fight back!
 	
-	P_SetMobjState (target, target->info->painstate);
+	P_SetMobjState (target, mobjinfo[target->type].painstate);
     }
 			
     target->reactiontime = 0;		// we're awake now...	
@@ -913,9 +913,9 @@ P_DamageMobj
 	// chase after this one
 	target->target = source;
 	target->threshold = BASETHRESHOLD;
-	if (target->state == &states[target->info->spawnstate]
-	    && target->info->seestate != S_NULL)
-	    P_SetMobjState (target, target->info->seestate);
+	if (target->state == &states[mobjinfo[target->type].spawnstate]
+	    && mobjinfo[target->type].seestate != S_NULL)
+	    P_SetMobjState (target, mobjinfo[target->type].seestate);
     }
 			
 }

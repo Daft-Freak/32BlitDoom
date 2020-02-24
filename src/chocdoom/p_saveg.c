@@ -374,7 +374,7 @@ static void saveg_read_mobj_t(mobj_t *str)
     str->type = saveg_read_enum();
 
     // mobjinfo_t* info;
-    str->info = saveg_readp();
+    saveg_readp();
 
     // int tics;
     str->tics = saveg_read32();
@@ -492,7 +492,7 @@ static void saveg_write_mobj_t(mobj_t *str)
     saveg_write_enum(str->type);
 
     // mobjinfo_t* info;
-    saveg_writep(str->info);
+    saveg_writep(&mobjinfo[str->type]);
 
     // int tics;
     saveg_write32(str->tics);
@@ -1664,7 +1664,6 @@ void P_UnArchiveThinkers (void)
 	    mobj->target = NULL;
             mobj->tracer = NULL;
 	    P_SetThingPosition (mobj);
-	    mobj->info = &mobjinfo[mobj->type];
 	    mobj->floorz = mobj->subsector->sector->floorheight;
 	    mobj->ceilingz = mobj->subsector->sector->ceilingheight;
 	    mobj->thinker.function.acp1 = (actionf_p1)P_MobjThinker;
