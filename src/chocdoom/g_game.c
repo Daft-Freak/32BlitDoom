@@ -2130,9 +2130,12 @@ void G_DoPlayDemo (void)
     consoleplayer = *demo_p++;
 	
     for (i=0 ; i<MAXPLAYERS ; i++) 
-	playeringame[i] = *demo_p++; 
+	playeringame[i] = *demo_p++;
 
-    if (playeringame[1] || M_CheckParm("-solo-net") > 0
+    for (i=MAXPLAYERS; i<4 ; i++)
+        demo_p++;
+
+    if ((MAXPLAYERS > 1 && playeringame[1]) || M_CheckParm("-solo-net") > 0
                         || M_CheckParm("-netdemo") > 0)
     {
 	netgame = true;
@@ -2208,7 +2211,9 @@ boolean G_CheckDemoStatus (void)
 	netdemo = false;
 	netgame = false;
 	deathmatch = false;
-	playeringame[1] = playeringame[2] = playeringame[3] = 0;
+    for(int i = 1; i < MAXPLAYERS; i++)
+	    playeringame[i] = 0;
+
 	respawnparm = false;
 	fastparm = false;
 	nomonsters = false;

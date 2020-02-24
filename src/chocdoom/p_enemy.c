@@ -499,7 +499,7 @@ P_LookForPlayers
 	
     for ( ; ; actor->lastlook = (actor->lastlook+1)&3 )
     {
-	if (!playeringame[actor->lastlook])
+	if (actor->lastlook >= MAXPLAYERS || !playeringame[actor->lastlook])
 	    continue;
 			
 	if (c++ == 2
