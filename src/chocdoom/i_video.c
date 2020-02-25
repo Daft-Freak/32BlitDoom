@@ -91,9 +91,7 @@ typedef struct
 	byte b;
 } col_t;
 
-// Palette converted to RGB565
-
-static uint16_t rgb565_palette[256];
+col_t *palette;
 
 // Last touch state
 
@@ -107,19 +105,6 @@ static bool run;
 
 void I_InitGraphics (void)
 {
-	/*gfx_image_t keys_img;
-	gfx_coord_t coords;
-
-	gfx_init_img (&keys_img, 40, 320, GFX_PIXEL_FORMAT_RGB565, RGB565_BLACK);
-	keys_img.pixel_data = (uint8_t*)img_keys;
-	gfx_init_img_coord (&coords, &keys_img);
-
-	gfx_draw_img (&keys_img, &coords);
-	lcd_refresh ();
-
-	gfx_draw_img (&keys_img, &coords);
-	lcd_refresh ();*/
-
 	I_VideoBuffer = (byte*)Z_Malloc (SCREENWIDTH * SCREENHEIGHT, PU_STATIC, NULL);
 
 	screenvisible = true;
@@ -316,27 +301,24 @@ void I_UpdateNoBlit (void)
 
 void I_FinishUpdate (void)
 {
+	if(!palette)
+		return;
+
 	int x, y;
 	byte index;
 
-	//lcd_vsync = false;
-
+	byte *inptr = I_VideoBuffer;
+	uint8_t *ptr = blit::screen.ptr(0, 0); // assuming screen width matches
 	for (y = 0; y < SCREENHEIGHT; y++)
 	{
 		for (x = 0; x < SCREENWIDTH; x++)
 		{
-			index = I_VideoBuffer[y * SCREENWIDTH + x];
-			blit::screen.ptr(x, y)[0] = GFX_RGB565_R(rgb565_palette[index]);
-			blit::screen.ptr(x, y)[1] = GFX_RGB565_G(rgb565_palette[index]);
-			blit::screen.ptr(x, y)[2] = GFX_RGB565_B(rgb565_palette[index]);
-
-			//((uint16_t*)lcd_frame_buffer)[x * GFX_MAX_WIDTH + (GFX_MAX_WIDTH - y - 1)] = rgb565_palette[index];
+			index = *(inptr++);
+			*(ptr++) = gammatable[usegamma][palette[index].r];
+			*(ptr++) = gammatable[usegamma][palette[index].g];
+			*(ptr++) = gammatable[usegamma][palette[index].b];
 		}
 	}
-
-	//lcd_refresh ();
-
-	//lcd_vsync = true;
 }
 
 //
@@ -350,21 +332,12 @@ void I_ReadScreen (byte* scr)
 //
 // I_SetPalette
 //
-void I_SetPalette (byte* palette)
+void I_SetPalette (byte* pal)
 {
 	int i;
 	col_t* c;
 
-	for (i = 0; i < 256; i++)
-	{
-		c = (col_t*)palette;
-
-		rgb565_palette[i] = GFX_RGB565(gammatable[usegamma][c->r],
-									   gammatable[usegamma][c->g],
-									   gammatable[usegamma][c->b]);
-
-		palette += 3;
-	}
+	palette = (col_t*)pal; // since we have the WAD stored in flash, the pointers passed here should stay valid
 }
 
 // Given an RGB value, find the closest matching palette index.
@@ -380,9 +353,9 @@ int I_GetPaletteIndex (int r, int g, int b)
 
     for (i = 0; i < 256; ++i)
     {
-    	color.r = GFX_RGB565_R(rgb565_palette[i]);
-    	color.g = GFX_RGB565_G(rgb565_palette[i]);
-    	color.b = GFX_RGB565_B(rgb565_palette[i]);
+    	color.r = palette[i].r;
+    	color.g = palette[i].g;
+    	color.b = palette[i].b;
 
         diff = (r - color.r) * (r - color.r)
              + (g - color.g) * (g - color.g)
