@@ -40,6 +40,7 @@ rcsid[] = "$Id: i_x.c,v 1.6 1997/02/03 22:45:10 b1 Exp $";
 #include <stdbool.h>
 
 #include "engine/engine.hpp"
+#include "engine/input.hpp"
 
 #define GFX_RGB565(r, g, b) ((r >> 3) << 11) | ((g >> 2) << 5) | (b >> 3)
 #define GFX_RGB565_R(rgb) ((rgb >> 11) << 3)
@@ -97,7 +98,7 @@ col_t *palette;
 
 // Last button state
 
-static bool last_button_state;
+static uint32_t last_button_state = 0;
 
 // run state
 
@@ -120,174 +121,43 @@ void I_StartFrame (void)
 
 }
 
+static void CheckButton(uint32_t changed_buttons, blit::Button button, int key)
+{
+	event_t event;
+	if(changed_buttons & button)
+	{
+		event.type = (blit::buttons & button) ? ev_keydown : ev_keyup;
+		event.data1 = key;
+		D_PostEvent(&event);
+	}
+}
+
 void I_GetEvent (void)
 {
 	event_t event;
-	/*bool button_state;
 
-	button_state = button_read ();
+	uint32_t changed_buttons = blit::buttons ^ last_button_state;
 
-	if (last_button_state != button_state)
-	{
-		last_button_state = button_state;
+	CheckButton(changed_buttons, blit::Button::DPAD_LEFT, KEY_LEFTARROW);
+	CheckButton(changed_buttons, blit::Button::DPAD_RIGHT, KEY_RIGHTARROW);
+	CheckButton(changed_buttons, blit::Button::DPAD_UP, KEY_UPARROW);
+	CheckButton(changed_buttons, blit::Button::DPAD_DOWN, KEY_DOWNARROW);
 
-		event.type = last_button_state ? ev_keydown : ev_keyup;
-		event.data1 = KEY_FIRE;
-		event.data2 = -1;
-		event.data3 = -1;
+	CheckButton(changed_buttons, blit::Button::A, KEY_ENTER);
+	CheckButton(changed_buttons, blit::Button::A, KEY_FIRE); // bad idea?
+	CheckButton(changed_buttons, blit::Button::B, KEY_USE);
+	CheckButton(changed_buttons, blit::Button::X, KEY_RSHIFT);
+	CheckButton(changed_buttons, blit::Button::Y, KEY_TAB);
 
-		D_PostEvent (&event);
-	}*/
+	CheckButton(changed_buttons, blit::Button::HOME /*MENU?*/, KEY_ESCAPE);
 
-	/*touch_main ();
+	last_button_state = blit::buttons;
 
-	if ((touch_state.x != last_touch_state.x) || (touch_state.y != last_touch_state.y) || (touch_state.status != last_touch_state.status))
-	{
-		last_touch_state = touch_state;
-
-		event.type = (touch_state.status == TOUCH_PRESSED) ? ev_keydown : ev_keyup;
-		event.data1 = -1;
-		event.data2 = -1;
-		event.data3 = -1;
-
-		if ((touch_state.x > 49)
-		 && (touch_state.x < 72)
-		 && (touch_state.y > 104)
-		 && (touch_state.y < 143))
-		{
-			// select weapon
-			if (touch_state.x < 60)
-			{
-				// lower row (5-7)
-				if (touch_state.y < 119)
-				{
-					event.data1 = '5';
-				}
-				else if (touch_state.y < 131)
-				{
-					event.data1 = '6';
-				}
-				else
-				{
-					event.data1 = '1';
-				}
-			}
-			else
-			{
-				// upper row (2-4)
-				if (touch_state.y < 119)
-				{
-					event.data1 = '2';
-				}
-				else if (touch_state.y < 131)
-				{
-					event.data1 = '3';
-				}
-				else
-				{
-					event.data1 = '4';
-				}
-			}
-		}
-		else if (touch_state.x < 40)
-		{
-			// button bar at bottom screen
-			if (touch_state.y < 40)
-			{
-				// enter
-				event.data1 = KEY_ENTER;
-			}
-			else if (touch_state.y < 80)
-			{
-				// escape
-				event.data1 = KEY_ESCAPE;
-			}
-			else if (touch_state.y < 120)
-			{
-				// use
-				event.data1 = KEY_USE;
-			}
-			else if (touch_state.y < 160)
-			{
-				// map
-				event.data1 = KEY_TAB;
-			}
-			else if (touch_state.y < 200)
-			{
-				// pause
-				event.data1 = KEY_PAUSE;
-			}
-			else if (touch_state.y < 240)
-			{
-				// toggle run
-				if (touch_state.status == TOUCH_PRESSED)
-				{
-					run = !run;
-
-					event.data1 = KEY_RSHIFT;
-
-					if (run)
-					{
-						event.type = ev_keydown;
-					}
-					else
-					{
-						event.type = ev_keyup;
-					}
-				}
-				else
-				{
-					return;
-				}
-			}
-			else if (touch_state.y < 280)
-			{
-				// save
-				event.data1 = KEY_F2;
-			}
-			else if (touch_state.y < 320)
-			{
-				// load
-				event.data1 = KEY_F3;
-			}
-		}
-		else
-		{
-			// movement/menu navigation
-			if (touch_state.x < 100)
-			{
-				if (touch_state.y < 100)
-				{
-					event.data1 = KEY_STRAFE_L;
-				}
-				else if (touch_state.y < 220)
-				{
-					event.data1 = KEY_DOWNARROW;
-				}
-				else
-				{
-					event.data1 = KEY_STRAFE_R;
-				}
-			}
-			else if (touch_state.x < 180)
-			{
-				if (touch_state.y < 160)
-				{
-					event.data1 = KEY_LEFTARROW;
-				}
-				else
-				{
-					event.data1 = KEY_RIGHTARROW;
-				}
-			}
-			else
-			{
-				event.data1 = KEY_UPARROW;
-			}
-		}
-
-		D_PostEvent (&event);
-	}*/
+	event.type = ev_joystick;
+	event.data1 = 0; //buttons?
+	event.data2 = blit::joystick.x * (INT32_MAX - 1);
+	event.data3 = blit::joystick.y * (INT32_MAX - 1);
+	D_PostEvent(&event);
 }
 
 void I_StartTic (void)
