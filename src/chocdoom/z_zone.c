@@ -64,8 +64,14 @@ typedef struct
 
 memzone_t*	mainzone;
 
+byte data_mem[64 * 1024] = {1}; // chunk of .data / DTCMRAM
+byte d3_mem[62 * 1024] __attribute__((section(".dma_data")));
 
-#define NUM_MEMZONES 1
+#ifdef TARGET_32BLIT_HW
+#define NUM_MEMZONES 4
+#else
+#define NUM_MEMZONES 3
+#endif
 memzone_t* memzones[NUM_MEMZONES];
 
 //
@@ -129,7 +135,16 @@ void Z_Init (void)
     byte *base = I_ZoneBase (&size);
     InitZone(base, size, &mainzone);
 
-    memzones[0] = mainzone;
+    memzones[1] = mainzone;
+
+    // more zones
+    InitZone(d3_mem, sizeof(d3_mem), &memzones[0]);
+#ifdef TARGET_32BLIT_HW
+    InitZone((byte *)0x30000000, 63 * 1024, &memzones[2]); // steal all of RAM_D2
+    InitZone(data_mem, sizeof(data_mem), &memzones[3]);
+#else
+    InitZone(data_mem, sizeof(data_mem), &memzones[2]);
+#endif
 }
 
 
