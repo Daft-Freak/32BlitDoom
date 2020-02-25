@@ -1,3 +1,5 @@
+#include <csetjmp>
+
 #include "main.h"
 
 #include "assets.hpp"
@@ -31,6 +33,16 @@ extern "C" void *_sbrk(ptrdiff_t incr)
 }
 #endif
 
+jmp_buf jump_buffer;
+std::string fatal_error;
+void blit_die(const char *msg)
+{
+    fatal_error = msg;
+    fatal_error = blit::screen.wrap_text(fatal_error, blit::screen.bounds.w - 20, blit::minimal_font);
+
+    longjmp(jump_buffer, 1);
+}
+
 void init()
 {
     blit::set_screen_mode(blit::ScreenMode::hires);
@@ -42,11 +54,40 @@ void init()
 
 void update(uint32_t time)
 {
+    if(!fatal_error.empty() || setjmp(jump_buffer))
+        return;
+
     TryRunTics();
 	S_UpdateSounds(players[consoleplayer].mo);
 }
 
 void render(uint32_t time)
 {
+    // everything is broken!
+    if(!fatal_error.empty())
+    {
+        blit::screen.pen = blit::Pen(255);
+
+        blit::Size text_bounds = blit::screen.measure_text(fatal_error, blit::minimal_font);
+
+        text_bounds.w += 4;
+        text_bounds.h += 4;
+
+        blit::Rect text_rect(
+            (blit::screen.bounds.w - text_bounds.w) / 2,
+            (blit::screen.bounds.h - text_bounds.h) / 2,
+            text_bounds.w, text_bounds.h);
+
+        blit::screen.rectangle(text_rect);
+
+        blit::screen.pen = blit::Pen(255, 255, 255);
+        blit::screen.text(fatal_error, blit::minimal_font, text_rect, true, blit::TextAlign::center_center);
+
+        return;
+    }
+
+    if(setjmp(jump_buffer))
+        return;
+
     D_Display();
 }

@@ -364,6 +364,7 @@ static int ZenityErrorBox(char *message)
 //
 
 static boolean already_quitting = false;
+extern void blit_die(const char *msg);
 
 void I_Error (char *error, ...)
 {
@@ -469,9 +470,7 @@ void I_Error (char *error, ...)
 
     exit(-1);
 #else
-    while (true)
-    {
-    }
+    blit_die(msgbuf);
 #endif
 }
 
