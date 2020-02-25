@@ -258,7 +258,7 @@ typedef struct
 //
 // BSP node.
 //
-typedef struct
+/*typedef struct
 {
     // Partition line.
     fixed_t	x;
@@ -272,7 +272,9 @@ typedef struct
     // If NF_SUBSECTOR its a subsector.
     unsigned short children[2];
     
-} node_t;
+} node_t;*/
+
+typedef mapnode_t node_t;
 
 
 

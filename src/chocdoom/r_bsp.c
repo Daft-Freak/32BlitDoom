@@ -566,7 +566,14 @@ void R_RenderBSPNode (int bspnum)
     R_RenderBSPNode (bsp->children[side]); 
 
     // Possibly divide back space.
-    if (R_CheckBBox (bsp->bbox[side^1]))	
+    fixed_t bbox[4] = {
+        bsp->bbox[side^1][0] << FRACBITS,
+        bsp->bbox[side^1][1] << FRACBITS,
+        bsp->bbox[side^1][2] << FRACBITS,
+        bsp->bbox[side^1][3] << FRACBITS
+    };
+
+    if (R_CheckBBox (bbox))	
 	R_RenderBSPNode (bsp->children[side^1]);
 }
 

@@ -307,7 +307,9 @@ void P_LoadNodes (int lump)
     nodes = Z_Malloc (numnodes*sizeof(node_t),PU_LEVEL,0);	
     data = W_CacheLumpNum (lump,PU_STATIC);
 	
-    mn = (mapnode_t *)data;
+    nodes = (node_t *)data;
+
+    /*mn = (mapnode_t *)data;
     no = nodes;
     
     for (i=0 ; i<numnodes ; i++, no++, mn++)
@@ -324,7 +326,7 @@ void P_LoadNodes (int lump)
 	}
     }
 	
-    W_ReleaseLumpNum(lump);
+    W_ReleaseLumpNum(lump);*/
 }
 
 

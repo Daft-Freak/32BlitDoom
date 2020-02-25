@@ -269,9 +269,10 @@ boolean P_CrossBSPNode (int bspnum)
     }
 		
     bsp = &nodes[bspnum];
+    divline_t line = {bsp->x << FRACBITS, bsp->y << FRACBITS, bsp->dx << FRACBITS, bsp->dy << FRACBITS};
     
     // decide which side the start point is on
-    side = P_DivlineSide (strace.x, strace.y, (divline_t *)bsp);
+    side = P_DivlineSide (strace.x, strace.y, &line);
     if (side == 2)
 	side = 0;	// an "on" should cross both sides
 
@@ -280,7 +281,7 @@ boolean P_CrossBSPNode (int bspnum)
 	return false;
 	
     // the partition plane is crossed here
-    if (side == P_DivlineSide (t2x, t2y,(divline_t *)bsp))
+    if (side == P_DivlineSide (t2x, t2y,&line))
     {
 	// the line doesn't touch the other side
 	return true;
