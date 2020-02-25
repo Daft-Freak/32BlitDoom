@@ -56,7 +56,7 @@
 #endif
 
 #define DEFAULT_RAM 6 /* MiB */
-#define MIN_RAM     6  /* MiB */
+#define MIN_RAM     0  /* MiB */
 
 
 typedef struct atexit_listentry_s atexit_listentry_t;
@@ -103,7 +103,7 @@ static byte *AutoAllocMemory(int *size, int default_ram, int min_ram)
 
     zonemem = NULL;
 
-    while (zonemem == NULL)
+    while (zonemem == NULL && default_ram)
     {
         // We need a reasonable minimum amount of RAM to start.
 
@@ -125,6 +125,15 @@ static byte *AutoAllocMemory(int *size, int default_ram, int min_ram)
         {
             default_ram -= 1;
         }
+    }
+
+    if(zonemem == NULL)
+    {
+        // just a little smaller than 6MB...
+        *size = 183 * 1024; // can alloc
+        *size += 300;
+
+        zonemem = malloc(*size);
     }
 
     return zonemem;
