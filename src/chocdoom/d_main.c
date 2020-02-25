@@ -200,7 +200,7 @@ void D_Display (void)
     if (gamestate != wipegamestate)
 		{
 		wipe = true;
-		wipe_StartScreen(0, 0, SCREENWIDTH, SCREENHEIGHT);
+		//wipe_StartScreen(0, 0, SCREENWIDTH, SCREENHEIGHT);
     }
     else
     	wipe = false;
