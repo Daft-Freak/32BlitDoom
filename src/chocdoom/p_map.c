@@ -205,10 +205,10 @@ static void SpechitOverrun(line_t *ld);
 //
 boolean PIT_CheckLine (line_t* ld)
 {
-    if (tmbbox[BOXRIGHT] <= ld->bbox[BOXLEFT]
-	|| tmbbox[BOXLEFT] >= ld->bbox[BOXRIGHT]
-	|| tmbbox[BOXTOP] <= ld->bbox[BOXBOTTOM]
-	|| tmbbox[BOXBOTTOM] >= ld->bbox[BOXTOP] )
+    if (tmbbox[BOXRIGHT] <= (ld->bbox[BOXLEFT] << FRACBITS)
+	|| tmbbox[BOXLEFT] >= (ld->bbox[BOXRIGHT] << FRACBITS)
+	|| tmbbox[BOXTOP] <= (ld->bbox[BOXBOTTOM] << FRACBITS)
+	|| tmbbox[BOXBOTTOM] >= (ld->bbox[BOXTOP] << FRACBITS) )
 	return true;
 
     if (P_BoxOnLineSide (tmbbox, ld) != -1)

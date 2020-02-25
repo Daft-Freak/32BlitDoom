@@ -430,24 +430,24 @@ void P_LoadLineDefs (int lump)
 		
 	if (v1->x < v2->x)
 	{
-	    ld->bbox[BOXLEFT] = v1->x;
-	    ld->bbox[BOXRIGHT] = v2->x;
+	    ld->bbox[BOXLEFT] = v1->x >> FRACBITS;
+	    ld->bbox[BOXRIGHT] = v2->x >> FRACBITS;
 	}
 	else
 	{
-	    ld->bbox[BOXLEFT] = v2->x;
-	    ld->bbox[BOXRIGHT] = v1->x;
+	    ld->bbox[BOXLEFT] = v2->x >> FRACBITS;
+	    ld->bbox[BOXRIGHT] = v1->x >> FRACBITS;
 	}
 
 	if (v1->y < v2->y)
 	{
-	    ld->bbox[BOXBOTTOM] = v1->y;
-	    ld->bbox[BOXTOP] = v2->y;
+	    ld->bbox[BOXBOTTOM] = v1->y >> FRACBITS;
+	    ld->bbox[BOXTOP] = v2->y >> FRACBITS;
 	}
 	else
 	{
-	    ld->bbox[BOXBOTTOM] = v2->y;
-	    ld->bbox[BOXTOP] = v1->y;
+	    ld->bbox[BOXBOTTOM] = v2->y >> FRACBITS;
+	    ld->bbox[BOXTOP] = v1->y >> FRACBITS;
 	}
 
 	ld->sidenum[0] = SHORT(mld->sidenum[0]);

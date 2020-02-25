@@ -196,7 +196,7 @@ typedef struct line_s
 
     // Neat. Another bounding box, for the extent
     //  of the LineDef.
-    fixed_t	bbox[4];
+    short	bbox[4];
 
     // Front and back sector.
     // Note: redundant? Can be retrieved from SideDefs.
