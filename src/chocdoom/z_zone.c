@@ -249,10 +249,9 @@ Z_Malloc
         
         do
         {
-            // scanned all the way around the list
-            // ... but continue if it's purgable
-            if (rover == start && (start->idtag & 0xFF) < PU_PURGELEVEL)
-                break;
+            bool donelist = rover == start;
+            //if (rover == start)
+            //    break;
         
             if (rover->idtag != PU_FREE)
             {
@@ -277,6 +276,10 @@ Z_Malloc
             {
                 rover = rover->next;
             }
+
+            // scanned all the way around the list
+            if(donelist)
+                break;
 
         } while (base->idtag != PU_FREE || base->size < size);
 
