@@ -809,7 +809,7 @@ boolean G_Responder (event_t* ev)
         SetJoyButtons(ev->data1);
 	joyxmove = ev->data2; 
 	joyymove = ev->data3; 
-        joystrafemove = ev->data4;
+    //joystrafemove = ev->data4;
 	return true;    // eat events 
  
       default: 

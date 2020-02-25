@@ -64,7 +64,7 @@ typedef struct
     //    data3: Y axis mouse movement (forward/backward).
     //    data4: Third axis mouse movement (strafe).
 
-    int data1, data2, data3, data4;
+    int data1, data2, data3;//, data4;
 } event_t;
 
  
