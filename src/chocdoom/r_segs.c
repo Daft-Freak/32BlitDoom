@@ -395,7 +395,7 @@ R_StoreWallRange
     linedef->flags |= ML_MAPPED;
     
     // calculate rw_distance for scale calculation
-    rw_normalangle = curline->angle + ANG90;
+    rw_normalangle = (curline->angle << 16) + ANG90;
     offsetangle = abs((int)rw_normalangle-rw_angle1);
     
     if (offsetangle > ANG90)
@@ -629,7 +629,7 @@ R_StoreWallRange
 	if (rw_normalangle-rw_angle1 < ANG180)
 	    rw_offset = -rw_offset;
 
-	rw_offset += sidedef->textureoffset + curline->offset;
+	rw_offset += sidedef->textureoffset + (curline->offset << 16);
 	rw_centerangle = ANG90 + viewangle - rw_normalangle;
 	
 	// calculate light table

@@ -238,9 +238,9 @@ typedef struct
     vertex_t*	v1;
     vertex_t*	v2;
     
-    fixed_t	offset;
+    /*fixed_t*/short	offset;
 
-    angle_t	angle;
+    /*angle_t*/short	angle;
 
     side_t*	sidedef;
     line_t*	linedef;
