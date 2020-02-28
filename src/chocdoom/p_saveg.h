@@ -56,6 +56,7 @@ void P_ArchiveSpecials (void);
 void P_UnArchiveSpecials (void);
 
 extern blit::File save_stream;
+extern uint32_t save_stream_off;
 extern boolean savegame_error;
 
 

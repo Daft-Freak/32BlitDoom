@@ -1531,6 +1531,8 @@ void G_DoLoadGame (void)
     	return;
     }
 
+    save_stream_off = 0;
+
     savegame_error = false;
 
     if (!P_ReadSaveGameHeader())
