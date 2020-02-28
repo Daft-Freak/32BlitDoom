@@ -49,6 +49,9 @@ void init()
 
     blit::File::add_buffer_file("doom-data/doom1.wad", doom1_wad, doom1_wad_length);
 
+    if(setjmp(jump_buffer))
+        return;
+
     D_DoomMain();
 }
 
