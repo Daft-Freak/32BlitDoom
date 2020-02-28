@@ -92,16 +92,8 @@ boolean M_FileExists(char *filename)
         return errno == EISDIR;
     }
 #else
-	/*FILINFO fno;
-
-	if (f_stat (filename, &fno) != FR_OK)
-	{
-		return false;
-	}*/
-    printf("M_FileExists %s\n", filename);
-    return blit::File().open(filename); //
-
-	return true;
+    // the original code also returns true for dirs
+    return blit::file_exists(filename) || blit::directory_exists(filename);
 #endif
 }
 
