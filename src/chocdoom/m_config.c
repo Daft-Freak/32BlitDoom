@@ -2047,7 +2047,7 @@ float M_GetFloatVariable(char *name)
 
 static char *GetDefaultConfigDir(void)
 {
-#if !defined(_WIN32) || defined(_WIN32_WCE)
+#if (!defined(_WIN32) || defined(_WIN32_WCE)) && ORIGCODE
 
     // Configuration settings are stored in ~/.chocolate-doom/,
     // except on Windows, where we behave like Vanilla Doom and
