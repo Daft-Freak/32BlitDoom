@@ -65,6 +65,7 @@ int snd_sfxdevice = SNDDEVICE_SB;
 extern void I_InitTimidityConfig(void);
 extern sound_module_t sound_sdl_module;
 extern sound_module_t sound_pcsound_module;
+extern sound_module_t sound_blit_module;
 extern music_module_t music_sdl_module;
 extern music_module_t music_opl_module;
 
@@ -95,6 +96,7 @@ static sound_module_t *sound_modules[] =
     &sound_sdl_module,
     &sound_pcsound_module,
 #endif
+    &sound_blit_module, // should probably ifdef this on something
     NULL,
 };
 

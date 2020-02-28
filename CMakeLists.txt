@@ -88,6 +88,7 @@ set(DOOM_SOURCES
 
 set(SOURCES
     src/blit/main.cpp
+    src/blit/sound.cpp
 )
 
 # the 32blit apis are c++, compile everything as c++ so I don't have to write a bunch of wrappers...
