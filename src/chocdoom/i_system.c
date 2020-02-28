@@ -130,8 +130,8 @@ static byte *AutoAllocMemory(int *size, int default_ram, int min_ram)
     if(zonemem == NULL)
     {
         // just a little smaller than 6MB...
-        *size = 183 * 1024; // can alloc
-        *size += 300;
+        *size = 182 * 1024; // can alloc
+        *size += 500;
 
         zonemem = malloc(*size);
     }

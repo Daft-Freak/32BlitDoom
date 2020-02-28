@@ -106,7 +106,7 @@ static void saveg_write8(byte value)
 {
 	unsigned long count;
 
-	/*if (f_writen (&save_stream, &value, 1, &count) != FR_OK)
+	if(!save_stream.write(save_stream_off, 1, &value))
     {
         if (!savegame_error)
         {
@@ -114,7 +114,9 @@ static void saveg_write8(byte value)
 
             savegame_error = true;
         }
-    }*/
+    }
+
+    save_stream_off++;
 }
 
 static short saveg_read16(void)
