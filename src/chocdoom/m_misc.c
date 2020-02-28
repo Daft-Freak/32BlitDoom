@@ -151,29 +151,13 @@ boolean M_WriteFile(char *name, void *source, int length)
 #else
 boolean M_WriteFile(char *name, void *source, int length)
 {
-	/*FIL file;
-	unsigned long c;
+    blit::File file(name, blit::OpenMode::write);
 
-	if (f_open (&file, name, FA_CREATE_ALWAYS | FA_WRITE) != FR_OK)
-	{
-		printf ("M_WriteFile: cannot create file %s\n", name);
-		return false;
-	}
+    if(!file.is_open())
+        return false;
 
-	if (f_writen (&file, source, length, &c) != FR_OK)
-	{
-		printf ("M_WriteFile: could not write to file %s\n", name);
-		return false;
-	}
-
-	f_close (&file);
-
-	if (c != length)
-	{
-		return false;
-	}*/
-
-    puts("M_WriteFile");
+    if(!file.write(0, length, (const char *)source) != length)
+        return false;
 
 	return true;
 }
