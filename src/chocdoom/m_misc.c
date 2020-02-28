@@ -62,31 +62,10 @@ void M_MakeDirectory(char *path)
 	#if ORIGCODE
     mkdir(path, 0755);
 	#else
-    /*FRESULT res;
-    char* path_mod;
-    int len;
 
-    // remove trailing slash
-    len = strlen (path);
+    if(!blit::create_directory(path))
+        I_Error ("M_MakeDirectory: path = '%s'", path);
 
-    path_mod = (char*)malloc (len + 1);
-
-    strncpy (path_mod, path, len);
-
-    if (path_mod[len - 1] == '/')
-    {
-    	path_mod[len - 1] = 0;
-    }
-
-    res = f_mkdir (path_mod);
-
-    if ((res != FR_OK) && (res != FR_EXIST))
-    {
-    	I_Error ("M_MakeDirectory: path = '%s', path_mod = '%s', res = %i", path, path_mod, res);
-    }
-
-    free (path_mod);*/
-    printf("M_MakeDirectory: path = '%s'\n", path);
 	#endif
 #endif
 }
