@@ -31,9 +31,12 @@ rcsid[] = "$Id: i_x.c,v 1.6 1997/02/03 22:45:10 b1 Exp $";
 #include "d_event.h"
 #include "d_main.h"
 #include "i_video.h"
+#include "i_scale.h"
+#include "w_wad.h"
 #include "z_zone.h"
 
 #include "tables.h"
+#include "deh_str.h"
 #include "doomkeys.h"
 
 #include <stdint.h>
@@ -51,6 +54,7 @@ rcsid[] = "$Id: i_x.c,v 1.6 1997/02/03 22:45:10 b1 Exp $";
 // The screen buffer; this is modified to draw things to the screen
 
 byte *I_VideoBuffer = NULL;
+screen_mode_t *screen_mode = &mode_stretch_1x;
 
 // If true, game is running as a screensaver
 
@@ -111,6 +115,9 @@ void I_InitGraphics (void)
 	I_VideoBuffer = blit::screen.data + 320 * 240; // HACK: we know that 2/3 of the framebuffer is unused in paletted mode
 
 	screenvisible = true;
+
+	if(screen_mode->InitMode)
+		screen_mode->InitMode((byte *)W_CacheLumpName(DEH_String("PLAYPAL"), PU_CACHE));
 }
 
 void I_ShutdownGraphics (void)
@@ -176,19 +183,8 @@ void I_FinishUpdate (void)
 	if(!palette)
 		return;
 
-	int x, y;
-	byte index;
-
-	byte *inptr = I_VideoBuffer;
-	uint8_t *ptr = blit::screen.ptr(0, 0); // assuming screen width matches
-	for (y = 0; y < SCREENHEIGHT; y++)
-	{
-		for (x = 0; x < SCREENWIDTH; x++)
-		{
-			index = *(inptr++);
-			*(ptr++) = index;
-		}
-	}
+	I_InitScale(I_VideoBuffer, blit::screen.ptr(0, 0), SCREENWIDTH);
+	screen_mode->DrawScreen(0, 0, SCREENWIDTH, SCREENHEIGHT);
 }
 
 //
