@@ -45,7 +45,7 @@ void blit_die(const char *msg)
 
 void init()
 {
-    blit::set_screen_mode(blit::ScreenMode::hires);
+    blit::set_screen_mode(blit::ScreenMode::hires_palette);
 
     blit::File::add_buffer_file("doom-data/doom1.wad", doom1_wad, doom1_wad_length);
 
@@ -69,7 +69,7 @@ void render(uint32_t time)
     // everything is broken!
     if(!fatal_error.empty())
     {
-        blit::screen.pen = blit::Pen(255);
+        blit::screen.pen = blit::Pen(8); // 070707
 
         blit::Size text_bounds = blit::screen.measure_text(fatal_error, blit::minimal_font);
 
@@ -83,7 +83,7 @@ void render(uint32_t time)
 
         blit::screen.rectangle(text_rect);
 
-        blit::screen.pen = blit::Pen(255, 255, 255);
+        blit::screen.pen = blit::Pen(176); // FF0000
         blit::screen.text(fatal_error, blit::minimal_font, text_rect, true, blit::TextAlign::center_center);
 
         return;

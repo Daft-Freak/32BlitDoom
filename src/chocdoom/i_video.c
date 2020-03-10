@@ -107,7 +107,8 @@ static bool run;
 
 void I_InitGraphics (void)
 {
-	I_VideoBuffer = (byte*)Z_Malloc (SCREENWIDTH * SCREENHEIGHT, PU_STATIC, NULL);
+	//I_VideoBuffer = (byte*)Z_Malloc (SCREENWIDTH * SCREENHEIGHT, PU_STATIC, NULL);
+	I_VideoBuffer = blit::screen.data + 320 * 240; // HACK: we know that 2/3 of the framebuffer is unused in paletted mode
 
 	screenvisible = true;
 }
@@ -185,9 +186,7 @@ void I_FinishUpdate (void)
 		for (x = 0; x < SCREENWIDTH; x++)
 		{
 			index = *(inptr++);
-			*(ptr++) = gammatable[usegamma][palette[index].r];
-			*(ptr++) = gammatable[usegamma][palette[index].g];
-			*(ptr++) = gammatable[usegamma][palette[index].b];
+			*(ptr++) = index;
 		}
 	}
 }
@@ -209,6 +208,18 @@ void I_SetPalette (byte* pal)
 	col_t* c;
 
 	palette = (col_t*)pal; // since we have the WAD stored in flash, the pointers passed here should stay valid
+
+	blit::Pen cols[256];
+
+	for (i = 0; i < 256; ++i)
+	{
+		cols[i].r = palette[i].r;
+		cols[i].g = palette[i].g;
+		cols[i].b = palette[i].b;
+		cols[i].a = 0xFF;
+	}
+
+	blit::set_screen_palette(cols, 256);
 }
 
 // Given an RGB value, find the closest matching palette index.
