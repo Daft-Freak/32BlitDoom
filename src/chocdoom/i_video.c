@@ -39,6 +39,7 @@ rcsid[] = "$Id: i_x.c,v 1.6 1997/02/03 22:45:10 b1 Exp $";
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "engine/api.hpp"
 #include "engine/engine.hpp"
 #include "engine/input.hpp"
 
