@@ -164,8 +164,8 @@ void I_GetEvent (void)
 
 	event.type = ev_joystick;
 	event.data1 = 0; //buttons?
-	event.data2 = blit::joystick.x * (INT32_MAX - 1);
-	event.data3 = blit::joystick.y * (INT32_MAX - 1);
+	event.data2 = blit::joystick.x * (INT16_MAX - 1);
+	event.data3 = blit::joystick.y * (INT16_MAX - 1);
 	D_PostEvent(&event);
 }
 
