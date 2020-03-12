@@ -111,8 +111,7 @@ static bool run;
 
 void I_InitGraphics (void)
 {
-	//I_VideoBuffer = (byte*)Z_Malloc (SCREENWIDTH * SCREENHEIGHT, PU_STATIC, NULL);
-	I_VideoBuffer = blit::screen.data + 320 * 240; // HACK: we know that 2/3 of the framebuffer is unused in paletted mode
+	I_VideoBuffer = (byte*)Z_Malloc (SCREENWIDTH * SCREENHEIGHT, PU_STATIC, NULL);
 
 	screenvisible = true;
 

@@ -65,12 +65,12 @@ typedef struct
 memzone_t*	mainzone;
 
 byte data_mem[64 * 1024] = {1}; // chunk of .data / DTCMRAM
-byte d3_mem[62 * 1024] __attribute__((section(".dma_data")));
 
 #ifdef TARGET_32BLIT_HW
 #define NUM_MEMZONES 4
+extern char __fb_start;
 #else
-#define NUM_MEMZONES 3
+#define NUM_MEMZONES 2
 #endif
 memzone_t* memzones[NUM_MEMZONES];
 
@@ -135,16 +135,22 @@ void Z_Init (void)
     byte *base = I_ZoneBase (&size);
     InitZone(base, size, &mainzone);
 
-    memzones[1] = mainzone;
+    int i = 0;
 
-    // more zones
-    InitZone(d3_mem, sizeof(d3_mem), &memzones[0]);
+// hacky RAM stealing
 #ifdef TARGET_32BLIT_HW
-    InitZone((byte *)0x30000000, 63 * 1024, &memzones[2]); // steal all of RAM_D2
-    InitZone(data_mem, sizeof(data_mem), &memzones[3]);
-#else
-    InitZone(data_mem, sizeof(data_mem), &memzones[2]);
+    // We know that 2/3 of the framebuffer is unused in paletted mode, steal that for the allocator
+    char *unused_fb_start = &__fb_start + 320 * 240;
+    const uint32_t unused_fb_len = 320 * 240 * 2;
+    InitZone((byte *)unused_fb_start, unused_fb_len, &memzones[i++]);
+
+    // Steal most of RAM_D3
+    const int fw_usage = 2 * 1024; // atttempt to avoid anything the firmware might be using
+    InitZone((byte *)0x38000000 + fw_usage, 64 * 1024 - fw_usage, &memzones[i++]);
 #endif
+
+    memzones[i++] = mainzone; // heap
+    InitZone(data_mem, sizeof(data_mem), &memzones[i++]); // .data
 }
 
 
