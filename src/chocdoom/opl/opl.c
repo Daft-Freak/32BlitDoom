@@ -19,8 +19,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-#include "SDL.h"
+//#include "SDL.h"
 
 #include "opl.h"
 #include "opl_internal.h"
@@ -49,7 +50,7 @@ static opl_driver_t *drivers[] =
 #ifdef _WIN32
     &opl_win32_driver,
 #endif
-    &opl_sdl_driver,
+    //&opl_sdl_driver,
     NULL
 };
 
@@ -393,20 +394,20 @@ typedef struct
 {
     int finished;
 
-    SDL_mutex *mutex;
-    SDL_cond *cond;
+    /*SDL_mutex *mutex;
+    SDL_cond *cond;*/
 } delay_data_t;
 
 static void DelayCallback(void *_delay_data)
 {
     delay_data_t *delay_data = _delay_data;
 
-    SDL_LockMutex(delay_data->mutex);
+    //SDL_LockMutex(delay_data->mutex);
     delay_data->finished = 1;
 
-    SDL_CondSignal(delay_data->cond);
+    /*SDL_CondSignal(delay_data->cond);
 
-    SDL_UnlockMutex(delay_data->mutex);
+    SDL_UnlockMutex(delay_data->mutex);*/
 }
 
 void OPL_Delay(uint64_t us)
@@ -422,26 +423,26 @@ void OPL_Delay(uint64_t us)
     // specified time.
 
     delay_data.finished = 0;
-    delay_data.mutex = SDL_CreateMutex();
-    delay_data.cond = SDL_CreateCond();
+    /*delay_data.mutex = SDL_CreateMutex();
+    delay_data.cond = SDL_CreateCond();*/
 
     OPL_SetCallback(us, DelayCallback, &delay_data);
 
     // Wait until the callback is invoked.
 
-    SDL_LockMutex(delay_data.mutex);
+    //SDL_LockMutex(delay_data.mutex);
 
     while (!delay_data.finished)
     {
-        SDL_CondWait(delay_data.cond, delay_data.mutex);
+        //SDL_CondWait(delay_data.cond, delay_data.mutex);
     }
 
-    SDL_UnlockMutex(delay_data.mutex);
+    //SDL_UnlockMutex(delay_data.mutex);
 
     // Clean up.
 
-    SDL_DestroyMutex(delay_data.mutex);
-    SDL_DestroyCond(delay_data.cond);
+    /*SDL_DestroyMutex(delay_data.mutex);
+    SDL_DestroyCond(delay_data.cond);*/
 }
 
 void OPL_SetPaused(int paused)

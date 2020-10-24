@@ -27,12 +27,15 @@ set(DOOM_SOURCES
     src/chocdoom/i_endoom.c
     src/chocdoom/i_joystick.c
     src/chocdoom/i_main.c
+    src/chocdoom/i_oplmusic.c
     src/chocdoom/i_scale.c
     src/chocdoom/i_sound.c
     src/chocdoom/i_system.c
     src/chocdoom/i_timer.c
     src/chocdoom/i_video.c
     src/chocdoom/memio.c
+    src/chocdoom/midifile.c
+    src/chocdoom/mus2mid.c
     src/chocdoom/m_argv.c
     src/chocdoom/m_bbox.c
     src/chocdoom/m_cheat.c
@@ -84,6 +87,10 @@ set(DOOM_SOURCES
     src/chocdoom/w_main.c
     src/chocdoom/w_wad.c
     src/chocdoom/z_zone.c
+
+    src/chocdoom/opl/dbopl.c
+    src/chocdoom/opl/opl.c
+    src/chocdoom/opl/opl_queue.c
 )
 
 set(SOURCES
@@ -99,4 +106,4 @@ set_source_files_properties(${DOOM_SOURCES} PROPERTIES
 
 blit_executable(doom ${SOURCES} ${DOOM_SOURCES})
 blit_assets_yaml(doom assets.yml)
-target_include_directories(doom PRIVATE src/blit)
+target_include_directories(doom PRIVATE src/blit src/chocdoom src/chocdoom/opl)

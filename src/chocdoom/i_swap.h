@@ -49,6 +49,9 @@
 
 #define SYS_LITTLE_ENDIAN
 
+#define SDL_SwapBE32 __builtin_bswap32
+#define SDL_SwapBE16 __builtin_bswap16
+
 #endif
 #endif
 
