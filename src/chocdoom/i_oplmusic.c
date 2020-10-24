@@ -34,6 +34,10 @@
 #include "opl.h"
 #include "midifile.h"
 
+//
+#define operator _operator
+//
+
 // #define OPL_MIDI_DEBUG
 
 #define MAXMIDLENGTH (96 * 1024)

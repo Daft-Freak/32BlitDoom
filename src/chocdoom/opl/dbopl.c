@@ -1316,12 +1316,12 @@ void Chip__Setup(Chip *self, Bit32u rate ) {
 	double scale = original / (double)rate;
 
 	//Noise counter is run at the same precision as general waves
-	self->noiseAdd = (Bit32u)( 0.5 + scale * ( 1 << LFO_SH ) );
+	self->noiseAdd = (Bit32u)( (double)0.5 + scale * ( 1 << LFO_SH ) );
 	self->noiseCounter = 0;
 	self->noiseValue = 1;	//Make sure it triggers the noise xor the first time
 	//The low frequency oscillation counter
 	//Every time his overflows vibrato and tremoloindex are increased
-	self->lfoAdd = (Bit32u)( 0.5 + scale * ( 1 << LFO_SH ) );
+	self->lfoAdd = (Bit32u)( (double)0.5 + scale * ( 1 << LFO_SH ) );
 	self->lfoCounter = 0;
 	self->vibratoIndex = 0;
 	self->tremoloIndex = 0;
@@ -1334,7 +1334,7 @@ void Chip__Setup(Chip *self, Bit32u rate ) {
 		self->freqMul[i] = (Bit32u)( 0.5 + freqScale * FreqCreateTable[ i ] );
 	}
 #else
-	freqScale = (Bit32u)( 0.5 + scale * ( 1 << ( WAVE_SH - 1 - 10)));
+	freqScale = (Bit32u)( (double)0.5 + scale * ( 1 << ( WAVE_SH - 1 - 10)));
 	for ( i = 0; i < 16; i++ ) {
 		self->freqMul[i] = freqScale * FreqCreateTable[ i ];
 	}
