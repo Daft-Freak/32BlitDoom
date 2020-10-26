@@ -38,6 +38,7 @@ extern opl_driver_t opl_openbsd_driver;
 extern opl_driver_t opl_win32_driver;
 #endif
 extern opl_driver_t opl_sdl_driver;
+extern opl_driver_t opl_blit_driver;
 
 static opl_driver_t *drivers[] =
 {
@@ -51,6 +52,7 @@ static opl_driver_t *drivers[] =
     &opl_win32_driver,
 #endif
     //&opl_sdl_driver,
+    &opl_blit_driver,
     NULL
 };
 
