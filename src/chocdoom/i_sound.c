@@ -108,6 +108,7 @@ static music_module_t *music_modules[] =
     &music_sdl_module,
     &music_opl_module,
 #endif
+    &music_opl_module, //
     NULL,
 };
 
