@@ -64,14 +64,21 @@ typedef struct
 
     // Events in this track:
 
-    midi_event_t *events;
+    //midi_event_t *events;
     int num_events;
+
+    unsigned int file_offset;
 } midi_track_t;
 
 struct midi_track_iter_s
 {
     midi_track_t *track;
     unsigned int position;
+
+    FILE *stream;
+    unsigned int stream_offset;
+    unsigned int last_event_type;
+    midi_event_t event, next_event;
 };
 
 struct midi_file_s
@@ -85,6 +92,8 @@ struct midi_file_s
     // Data buffer used to store data read for SysEx or meta events:
     byte *buffer;
     unsigned int buffer_size;
+
+    FILE *stream;
 };
 
 // Check the header of a chunk:
@@ -446,7 +455,7 @@ static boolean ReadTrack(midi_track_t *track, FILE *stream)
     unsigned int last_event_type;
 
     track->num_events = 0;
-    track->events = NULL;
+    //track->events = NULL;
 
     // Read the header:
 
@@ -458,12 +467,13 @@ static boolean ReadTrack(midi_track_t *track, FILE *stream)
     // Then the events:
 
     last_event_type = 0;
+    track->file_offset = ftell(stream);
 
     for (;;)
     {
         // Resize the track slightly larger to hold another event:
 
-        new_events = realloc(track->events, 
+        /*new_events = realloc(track->events, 
                              sizeof(midi_event_t) * (track->num_events + 1));
 
         if (new_events == NULL)
@@ -475,11 +485,15 @@ static boolean ReadTrack(midi_track_t *track, FILE *stream)
 
         // Read the next event:
 
-        event = &track->events[track->num_events];
+        event = &track->events[track->num_events];*/
+        midi_event_t tmp_event;
+        event = &tmp_event;
         if (!ReadEvent(event, &last_event_type, stream))
         {
             return false;
         }
+
+        FreeEvent(event);
 
         ++track->num_events;
 
@@ -499,14 +513,14 @@ static boolean ReadTrack(midi_track_t *track, FILE *stream)
 
 static void FreeTrack(midi_track_t *track)
 {
-    unsigned int i;
+    /*unsigned int i;
 
     for (i=0; i<track->num_events; ++i)
     {
         FreeEvent(&track->events[i]);
     }
 
-    free(track->events);
+    free(track->events);*/
 }
 
 static boolean ReadAllTracks(midi_file_t *file, FILE *stream)
@@ -588,6 +602,8 @@ void MIDI_FreeFile(midi_file_t *file)
         free(file->tracks);
     }
 
+    fclose(file->stream);
+
     free(file);
 }
 
@@ -637,7 +653,7 @@ midi_file_t *MIDI_LoadFile(char *filename)
         return NULL;
     }
 
-    fclose(stream);
+    file->stream = stream;
 
     return file;
 }
@@ -661,11 +677,21 @@ midi_track_iter_t *MIDI_IterateTrack(midi_file_t *file, unsigned int track)
     iter->track = &file->tracks[track];
     iter->position = 0;
 
+    iter->stream = file->stream;
+
+    // read first event
+    fseek(iter->stream, iter->track->file_offset, SEEK_SET);
+    FreeEvent(&iter->next_event);
+    ReadEvent(&iter->next_event, &iter->last_event_type, iter->stream);
+    iter->stream_offset = ftell(iter->stream);
+
     return iter;
 }
 
 void MIDI_FreeIterator(midi_track_iter_t *iter)
 {
+    FreeEvent(&iter->event);
+    FreeEvent(&iter->next_event);
     free(iter);
 }
 
@@ -677,7 +703,7 @@ unsigned int MIDI_GetDeltaTime(midi_track_iter_t *iter)
     {
         midi_event_t *next_event;
 
-        next_event = &iter->track->events[iter->position];
+        next_event = &iter->next_event;
 
         return next_event->delta_time;
     }
@@ -693,7 +719,15 @@ int MIDI_GetNextEvent(midi_track_iter_t *iter, midi_event_t **event)
 {
     if (iter->position < iter->track->num_events)
     {
-        *event = &iter->track->events[iter->position];
+        FreeEvent(&iter->event);
+        iter->event = iter->next_event;
+        *event = &iter->event;
+
+        // read next
+        fseek(iter->stream, iter->stream_offset, SEEK_SET);
+        ReadEvent(&iter->next_event, &iter->last_event_type, iter->stream);
+        iter->stream_offset = ftell(iter->stream);
+
         ++iter->position;
 
         return 1;
@@ -724,6 +758,12 @@ unsigned int MIDI_GetFileTimeDivision(midi_file_t *file)
 void MIDI_RestartIterator(midi_track_iter_t *iter)
 {
     iter->position = 0;
+
+    // read first event
+    fseek(iter->stream, iter->track->file_offset, SEEK_SET);
+    FreeEvent(&iter->next_event);
+    ReadEvent(&iter->next_event, &iter->last_event_type, iter->stream);
+    iter->stream_offset = ftell(iter->stream);
 }
 
 #ifdef TEST
