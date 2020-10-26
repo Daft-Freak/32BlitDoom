@@ -293,14 +293,17 @@ static boolean ReadMetaEvent(midi_event_t *event, FILE *stream)
     }
 
     // Read the byte sequence:
+    byte tmp;
+    for(int i = 0; i < event->data.meta.length; i++)
+        ReadByte(&tmp, stream);
 
-    event->data.meta.data = ReadByteSequence(event->data.meta.length, stream);
+    /*event->data.meta.data = ReadByteSequence(event->data.meta.length, stream);
 
     if (event->data.meta.data == NULL)
     {
         fprintf(stderr, "ReadSysExEvent: Failed while reading SysEx event\n");
         return false;
-    }
+    }*/
 
     return true;
 }
@@ -399,7 +402,7 @@ static void FreeEvent(midi_event_t *event)
             break;
 
         case MIDI_EVENT_META:
-            free(event->data.meta.data);
+            //free(event->data.meta.data);
             break;
 
         default:
