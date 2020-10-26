@@ -28,6 +28,10 @@
 #define TRACK_CHUNK_ID  "MTrk"
 #define MAX_BUFFER_SIZE 0x10000
 
+// blit
+#include "stdio-wrap.hpp"
+//
+
 // haleyjd 09/09/10: packing required
 #ifdef _MSC_VER
 #pragma pack(push, 1)
