@@ -20,7 +20,9 @@ struct active_sound
 
 static boolean use_sfx_prefix;
 
-static active_sound channel_sounds[CHANNEL_COUNT];
+#define SOUND_CHANNELS CHANNEL_COUNT - 1
+
+static active_sound channel_sounds[SOUND_CHANNELS];
 
 static boolean SetupSound(sfxinfo_t *sfxinfo, int channel)
 {
@@ -137,7 +139,7 @@ static boolean I_Blit_InitSound(boolean _use_sfx_prefix)
 {
     use_sfx_prefix = _use_sfx_prefix;
 
-    for(int i = 0; i < CHANNEL_COUNT; i++)
+    for(int i = 0; i < SOUND_CHANNELS; i++)
     {
         blit::channels[i].waveforms = blit::Waveform::WAVE;
         blit::channels[i].wave_callback_arg = (void *)(uintptr_t)i;
@@ -166,7 +168,7 @@ static void I_Blit_UpdateSound()
 
 static void I_Blit_UpdateSoundParams(int handle, int vol, int sep)
 {
-    if(handle >= CHANNEL_COUNT)
+    if(handle >= SOUND_CHANNELS)
         return;
 
     blit::channels[handle].volume = vol * 222;
@@ -174,7 +176,7 @@ static void I_Blit_UpdateSoundParams(int handle, int vol, int sep)
 
 static int I_Blit_StartSound(sfxinfo_t *sfxinfo, int channel, int vol, int sep)
 {
-    if(channel >= CHANNEL_COUNT)
+    if(channel >= SOUND_CHANNELS)
         return -1;
 
     blit::channels[channel].off();
@@ -192,7 +194,7 @@ static int I_Blit_StartSound(sfxinfo_t *sfxinfo, int channel, int vol, int sep)
 
 static void I_Blit_StopSound(int handle)
 {
-    if (handle >= CHANNEL_COUNT)
+    if (handle >= SOUND_CHANNELS)
         return;
 
     blit::channels[handle].off();
@@ -200,7 +202,7 @@ static void I_Blit_StopSound(int handle)
 
 static boolean I_Blit_SoundIsPlaying(int handle)
 {
-    if(handle > CHANNEL_COUNT)
+    if(handle > SOUND_CHANNELS)
         return false;
 
     return blit::channels[handle].adsr_phase != blit::ADSRPhase::OFF;
