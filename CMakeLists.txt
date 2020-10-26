@@ -90,6 +90,7 @@ set(DOOM_SOURCES
 
     src/chocdoom/opl/dbopl.c
     src/chocdoom/opl/opl.c
+    src/chocdoom/opl/opl_blit.cpp
     src/chocdoom/opl/opl_queue.c
 )
 
