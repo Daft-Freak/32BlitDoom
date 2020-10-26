@@ -64,10 +64,6 @@ static uint64_t pause_offset;
 
 static Chip opl_chip;
 
-// Temporary mixing buffer used by the mixing callback.
-
-static int32_t mix_buffer[64];
-
 // Register number that was written.
 
 static int register_num = 0;
@@ -121,15 +117,8 @@ static void FillBuffer(int16_t *buffer, unsigned int nsamples)
 {
     unsigned int i;
 
-    // This seems like a reasonable assumption.  mix_buffer is
-    // 1 second long, which should always be much longer than the
-    // SDL mix buffer.
-
-    assert(nsamples < blit::sample_rate);
-
+    int32_t mix_buffer[64];
     Chip__GenerateBlock2(&opl_chip, nsamples, mix_buffer);
-
-    // Mix into the destination buffer, doubling up into stereo.
 
     for (i=0; i<nsamples; ++i)
         buffer[i] = (int16_t) mix_buffer[i];
