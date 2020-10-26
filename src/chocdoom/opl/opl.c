@@ -394,7 +394,7 @@ void OPL_Unlock(void)
 
 typedef struct
 {
-    int finished;
+    volatile int finished;
 
     /*SDL_mutex *mutex;
     SDL_cond *cond;*/
