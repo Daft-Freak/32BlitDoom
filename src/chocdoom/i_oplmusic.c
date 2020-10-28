@@ -36,6 +36,39 @@
 
 //
 #define operator _operator
+
+typedef struct
+{
+    int is_mus;
+    void *ptr;
+} music_file_t;
+
+// stolen from mus2mid
+typedef enum
+{
+    mus_releasekey = 0x00,
+    mus_presskey = 0x10,
+    mus_pitchwheel = 0x20,
+    mus_systemevent = 0x30,
+    mus_changecontroller = 0x40,
+    mus_scoreend = 0x60
+} musevent;
+
+typedef struct
+{
+    byte id[4];
+    unsigned short scorelength;
+    unsigned short scorestart;
+    unsigned short primarychannels;
+    unsigned short secondarychannels;
+    unsigned short instrumentcount;
+} PACKEDATTR musheader;
+
+static const byte controller_map[] =
+{
+    0x00, 0x20, 0x01, 0x07, 0x0A, 0x0B, 0x5B, 0x5D,
+    0x40, 0x43, 0x78, 0x7B, 0x7E, 0x7F, 0x79
+};
 //
 
 // #define OPL_MIDI_DEBUG
@@ -94,6 +127,9 @@ typedef struct
 
     int bend;
 
+    //
+    int vel;
+
 } opl_channel_data_t;
 
 // Data associated with a track that is currently playing.
@@ -107,6 +143,8 @@ typedef struct
     // Track iterator used to read new events.
 
     midi_track_iter_t *iter;
+
+    byte *ptr, *start_ptr;
 } opl_track_data_t;
 
 typedef struct opl_voice_s opl_voice_t;
@@ -1131,6 +1169,7 @@ static void ProcessEvent(opl_track_data_t *track, midi_event_t *event)
 }
 
 static void ScheduleTrack(opl_track_data_t *track);
+static void TrackTimerCallback(void *arg);
 
 // Restart a song from the beginning.
 
@@ -1142,8 +1181,16 @@ static void RestartSong(void *unused)
 
     for (i=0; i<num_tracks; ++i)
     {
-        MIDI_RestartIterator(tracks[i].iter);
-        ScheduleTrack(&tracks[i]);
+        if(tracks[i].iter)
+        {
+            MIDI_RestartIterator(tracks[i].iter);
+            ScheduleTrack(&tracks[i]);
+        }
+        else
+        {
+            tracks[i].ptr = tracks[i].start_ptr;
+            OPL_SetCallback(0, TrackTimerCallback, tracks + i);
+        }
     }
 }
 
@@ -1156,6 +1203,122 @@ static void TrackTimerCallback(void *arg)
     midi_event_t *event;
 
     // Get the next event and process it.
+
+    // mus
+    if(track->ptr)
+    {
+        midi_event_t mus_event;
+        mus_event.event_type = 0;
+
+        bool mus_end = false;
+        while(!mus_end)
+        {
+            byte event_desc = *track->ptr++;
+            int channel = event_desc & 0xF;
+
+            // remap percussion
+            if(channel == 15)
+                channel = 9;
+            else if(channel >= 9)
+                channel++;
+
+            switch(event_desc & 0x70)
+            {
+                case mus_releasekey:
+                {
+                    byte note = *track->ptr++;
+                    mus_event.event_type = MIDI_EVENT_NOTE_OFF;
+                    mus_event.data.channel.channel = channel;
+                    mus_event.data.channel.param1 = note;
+                    break;
+                }
+                case mus_presskey:
+                {
+                    byte note = *track->ptr++;
+
+                    mus_event.event_type = MIDI_EVENT_NOTE_ON;
+                    mus_event.data.channel.channel = channel;
+                    mus_event.data.channel.param1 = note & 0x7F;
+
+                    if(note & 0x80)
+                        track->channels[channel].vel = (*track->ptr++) & 0x7F;
+                    
+                    mus_event.data.channel.param2 = track->channels[channel].vel;
+
+                    break;
+                }
+                case mus_pitchwheel:
+                {
+                    short value = (*track->ptr++) * 64;
+
+                    mus_event.event_type = MIDI_EVENT_PITCH_BEND;
+                    mus_event.data.channel.channel = channel;
+                    mus_event.data.channel.param1 = value & 0x7F;
+                    mus_event.data.channel.param2 = (value >> 7) & 0x7F;
+                    break;
+                }
+                case mus_systemevent:
+                {
+                    byte number = *track->ptr++;
+
+                    if(number >= 10 && number <= 14)
+                    {
+                        mus_event.event_type = MIDI_EVENT_CONTROLLER;
+                        mus_event.data.channel.param1 = controller_map[number];
+                        mus_event.data.channel.param2 = 0;
+                    }
+                    break;
+                }
+                case mus_changecontroller:
+                {
+                    byte number = *track->ptr++;
+                    byte value = *track->ptr++;
+
+                    mus_event.data.channel.channel = channel;
+
+                    if(number == 0) {
+                        mus_event.event_type = MIDI_EVENT_PROGRAM_CHANGE;
+                        mus_event.data.channel.param1 = value & 0x7F;
+                    }
+                    else if(number <= 9)
+                    {
+                        mus_event.event_type = MIDI_EVENT_CONTROLLER;
+                        mus_event.data.channel.param1 = controller_map[number];
+                        mus_event.data.channel.param2 = value & 0x7F;
+                    }
+                    break;
+                }
+                case mus_scoreend:
+                    mus_end = true;
+                    break;
+            }
+
+            if(mus_event.event_type)
+                ProcessEvent(track, &mus_event);
+
+            if(event_desc & 0x80)
+                break;
+        }
+
+        // timing
+        if(!mus_end)
+        {
+            int time = 0;
+            byte tmp = 0x80;
+            while(tmp & 0x80)
+            {
+                tmp = *track->ptr++;
+
+                time = time * 128 + (tmp & 0x7F);
+            }
+
+            OPL_SetCallback(time * 500000 / 70, TrackTimerCallback, track);
+        }
+        else if(song_looping)
+            OPL_SetCallback(5000, RestartSong, NULL);
+
+        return;
+    }
 
     if (!MIDI_GetNextEvent(track->iter, &event))
     {
@@ -1227,6 +1390,7 @@ static void StartTrack(midi_file_t *file, unsigned int track_num)
 
     track = &tracks[track_num];
     track->iter = MIDI_IterateTrack(file, track_num);
+    track->ptr = NULL;
 
     for (i=0; i<MIDI_CHANNELS_PER_TRACK; ++i)
     {
@@ -1250,26 +1414,55 @@ static void I_OPL_PlaySong(void *handle, boolean looping)
         return;
     }
 
-    file = handle;
+    music_file_t *mus_handle = handle;
 
-    // Allocate track data.
+    if(mus_handle->is_mus)
+    {
+        num_tracks = 1;
+        ticks_per_beat = 70;
+    }
+    else
+    {
+        file = mus_handle->ptr;
 
-    tracks = malloc(MIDI_NumTracks(file) * sizeof(opl_track_data_t));
+        // Allocate track data.
 
-    num_tracks = MIDI_NumTracks(file);
+        num_tracks = MIDI_NumTracks(file);
+        ticks_per_beat = MIDI_GetFileTimeDivision(file);
+    }
+
+    tracks = malloc(num_tracks * sizeof(opl_track_data_t));
+
     running_tracks = num_tracks;
     song_looping = looping;
-
-    ticks_per_beat = MIDI_GetFileTimeDivision(file);
 
     // Default is 120 bpm.
     // TODO: this is wrong
 
     us_per_beat = 500 * 1000;
 
-    for (i=0; i<num_tracks; ++i)
+    if(mus_handle->is_mus)
     {
-        StartTrack(file, i);
+        musheader *head = mus_handle->ptr;
+
+        opl_track_data_t *track;
+        unsigned int i;
+
+        track = &tracks[0];
+        track->iter = NULL;
+        track->ptr = track->start_ptr = mus_handle->ptr + head->scorestart;
+
+        for (i=0; i<MIDI_CHANNELS_PER_TRACK; ++i)
+            InitChannel(track, &track->channels[i]);
+
+        OPL_SetCallback(0, TrackTimerCallback, track);
+    }
+    else
+    {
+        for (i=0; i<num_tracks; ++i)
+        {
+            StartTrack(file, i);
+        }
     }
 }
 
@@ -1339,7 +1532,8 @@ static void I_OPL_StopSong(void)
 
     for (i=0; i<num_tracks; ++i)
     {
-        MIDI_FreeIterator(tracks[i].iter);
+        if(tracks[i].iter)
+            MIDI_FreeIterator(tracks[i].iter);
     }
 
     free(tracks);
@@ -1359,7 +1553,10 @@ static void I_OPL_UnRegisterSong(void *handle)
 
     if (handle != NULL)
     {
-        MIDI_FreeFile(handle);
+        music_file_t *mus_handle = handle;
+        if(!mus_handle->is_mus)
+            MIDI_FreeFile(mus_handle->ptr);
+        free(mus_handle);
     }
 }
 
@@ -1398,13 +1595,15 @@ static boolean ConvertMus(byte *musdata, int len, char *filename)
 
 static void *I_OPL_RegisterSong(void *data, int len)
 {
-    midi_file_t *result;
+    music_file_t *result;
     char *filename;
 
     if (!music_initialized)
     {
         return NULL;
     }
+
+    result = malloc(sizeof(music_file_t));
 
     // MUS files begin with "MUS"
     // Reject anything which doesnt have this signature
@@ -1414,19 +1613,28 @@ static void *I_OPL_RegisterSong(void *data, int len)
     if (IsMid(data, len) && len < MAXMIDLENGTH)
     {
         M_WriteFile(filename, data, len);
+
+        midi_file_t *midi = MIDI_LoadFile(filename);
+
+        if (midi == NULL)
+        {
+            fprintf(stderr, "I_OPL_RegisterSong: Failed to load MID.\n");
+            free(result);
+            result = NULL;
+        }
+
+        result->is_mus = 0;
+        result->ptr = midi;
     }
     else
     {
 	// Assume a MUS file and try to convert
 
-        ConvertMus(data, len, filename);
-    }
+        //ConvertMus(data, len, filename);
 
-    result = MIDI_LoadFile(filename);
-
-    if (result == NULL)
-    {
-        fprintf(stderr, "I_OPL_RegisterSong: Failed to load MID.\n");
+        // assumes mapped file
+        result->is_mus = 1;
+        result->ptr = data;
     }
 
     // remove file now
