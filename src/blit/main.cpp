@@ -46,6 +46,8 @@ void blit_die(const char *msg)
 void init()
 {
     blit::set_screen_mode(blit::ScreenMode::hires_palette);
+    blit::screen.pen = blit::Pen(1);
+    blit::screen.clear();
 
     blit::File::add_buffer_file("doom-data/doom1.wad", doom1_wad, doom1_wad_length);
 
