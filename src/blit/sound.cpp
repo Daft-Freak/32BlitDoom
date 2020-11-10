@@ -73,7 +73,7 @@ static boolean SetupSound(sfxinfo_t *sfxinfo, int channel)
     data += 16;
     length -= 32;
 
-    if(samplerate != 11025)
+    if(samplerate != 11025 && samplerate != 22050)
     {
         printf("unhandled rate %i\n", samplerate);
         return false;
@@ -126,11 +126,21 @@ static void RefillBuffer(void *data)
     }
 
     int i = 0;
-    for(i = 0; i < 64 && sound.offset < sound.length; i += 2, sound.offset++)
+
+    if(sound.rate == 11025)
     {
-        blit::channels[channel].wave_buffer[i] = sound.data[sound.offset] - 127;
-        blit::channels[channel].wave_buffer[i + 1] = sound.data[sound.offset] - 127;
+        for(i = 0; i < 64 && sound.offset < sound.length; i += 2, sound.offset++)
+        {
+            blit::channels[channel].wave_buffer[i] = sound.data[sound.offset] - 127;
+            blit::channels[channel].wave_buffer[i + 1] = sound.data[sound.offset] - 127;
+        }
     }
+    else
+    {
+        for(i = 0; i < 64 && sound.offset < sound.length; i++, sound.offset++)
+            blit::channels[channel].wave_buffer[i] = sound.data[sound.offset] - 127;
+    }
+    
 
     // pad end
     for(;i < 64; i++)
