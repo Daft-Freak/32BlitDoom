@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.1.0)
 set(32BLIT_PATH "../" CACHE PATH "Path to 32blit.cmake")
 project(doom)
 
+option(EMBED_ASSET_WAD "Embed a WAD at build time as an asset" OFF)
+
 include(${32BLIT_PATH}/32blit.cmake)
 
 set(DOOM_SOURCES
@@ -106,6 +108,11 @@ set_source_files_properties(${DOOM_SOURCES} PROPERTIES
 )
 
 blit_executable(doom ${SOURCES} ${DOOM_SOURCES})
-blit_assets_yaml(doom assets.yml)
+
+if(EMBED_ASSET_WAD)
+    blit_assets_yaml(doom assets.yml)
+    target_compile_definitions(doom "-DASSET_WAD")
+endif()
+
 blit_metadata(doom metadata.yml)
 target_include_directories(doom PRIVATE src/blit src/chocdoom src/chocdoom/opl)

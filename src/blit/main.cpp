@@ -2,7 +2,9 @@
 
 #include "main.h"
 
+#ifdef ASSET_WAD
 #include "assets.hpp"
+#endif
 
 #include "../chocdoom/doomstat.h"
 #include "../chocdoom/s_sound.h"
@@ -78,7 +80,9 @@ void init()
     blit::screen.pen = blit::Pen(1);
     blit::screen.clear();
 
+#ifdef ASSET_WAD
     blit::File::add_buffer_file("doom-data/doom1.wad", doom1_wad, doom1_wad_length);
+#endif
 
     add_appended_files();
 
