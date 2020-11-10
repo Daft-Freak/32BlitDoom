@@ -46,6 +46,32 @@ void blit_die(const char *msg)
     longjmp(jump_buffer, 1);
 }
 
+void add_appended_files()
+{
+#ifdef TARGET_32BLIT_HW
+    extern char _flash_end;
+
+    if(memcmp(&_flash_end, "APPFILES", 8) != 0)
+        return;
+
+    uint32_t num_files = *reinterpret_cast<uint32_t *>(&_flash_end + 8);
+
+    const int header_size = 12, file_header_size = 8;
+
+    auto dataPtr = &_flash_end + header_size + file_header_size * num_files;
+
+    for(auto i = 0u; i < num_files; i++)
+    {
+        auto filename_length = *reinterpret_cast<uint16_t *>(&_flash_end + header_size + i * file_header_size);
+        auto file_length = *reinterpret_cast<uint32_t *>(&_flash_end + header_size + i * file_header_size + 4);
+
+        blit::File::add_buffer_file(std::string(dataPtr, filename_length), reinterpret_cast<uint8_t *>(dataPtr + filename_length), file_length);
+
+        dataPtr += filename_length + file_length;
+    }
+#endif
+}
+
 void init()
 {
     blit::set_screen_mode(blit::ScreenMode::hires_palette);
@@ -53,6 +79,8 @@ void init()
     blit::screen.clear();
 
     blit::File::add_buffer_file("doom-data/doom1.wad", doom1_wad, doom1_wad_length);
+
+    add_appended_files();
 
 #ifndef TARGET_32BLIT_HW
     // for testing, load all the WADs into memory
