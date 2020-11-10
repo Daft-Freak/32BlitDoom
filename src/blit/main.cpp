@@ -40,6 +40,9 @@ void blit_die(const char *msg)
     fatal_error = msg;
     fatal_error = blit::screen.wrap_text(fatal_error, blit::screen.bounds.w - 20, blit::minimal_font);
 
+    for(int i = 0; i < CHANNEL_COUNT; i++)
+        blit::channels[i].off();
+
     longjmp(jump_buffer, 1);
 }
 
