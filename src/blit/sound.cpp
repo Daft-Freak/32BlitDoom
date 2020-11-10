@@ -127,7 +127,10 @@ static void RefillBuffer(void *data)
 
     int i = 0;
     for(i = 0; i < 64 && sound.offset < sound.length; i += 2, sound.offset++)
+    {
         blit::channels[channel].wave_buffer[i] = sound.data[sound.offset] - 127;
+        blit::channels[channel].wave_buffer[i + 1] = sound.data[sound.offset] - 127;
+    }
 
     // pad end
     for(;i < 64; i++)
