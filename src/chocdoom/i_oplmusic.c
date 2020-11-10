@@ -1622,9 +1622,11 @@ static void *I_OPL_RegisterSong(void *data, int len)
             free(result);
             result = NULL;
         }
-
-        result->is_mus = 0;
-        result->ptr = midi;
+        else
+        {
+            result->is_mus = 0;
+            result->ptr = midi;
+        }
     }
     else
     {
