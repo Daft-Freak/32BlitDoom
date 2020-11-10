@@ -38,12 +38,20 @@
 
 typedef struct lumpinfo_s lumpinfo_t;
 
+typedef struct
+{
+    int			filepos;
+    int			size;
+    char		name[8];
+} PACKEDATTR filelump_t;
+
 struct lumpinfo_s
 {
-    char	name[8];
+    //char	name[8];
+    filelump_t *ptr;
     wad_file_t *wad_file;
-    int		position;
-    int		size;
+    //int		position;
+    //int		size;
     //void       *cache;
 
     // Used for hash table lookups

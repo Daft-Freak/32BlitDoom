@@ -45,13 +45,6 @@ typedef struct
 } PACKEDATTR wadinfo_t;
 
 
-typedef struct
-{
-    int			filepos;
-    int			size;
-    char		name[8];
-} PACKEDATTR filelump_t;
-
 //
 // GLOBALS
 //
@@ -216,11 +209,12 @@ wad_file_t *W_AddFile (char *filename)
 
     for (i=startlump; i<numlumps; ++i)
     {
+        lump_p->ptr = filerover;
 		lump_p->wad_file = wad_file;
-		lump_p->position = LONG(filerover->filepos);
-		lump_p->size = LONG(filerover->size);
+		//lump_p->position = LONG(filerover->filepos);
+		//lump_p->size = LONG(filerover->size);
 		//lump_p->cache = NULL;
-		strncpy(lump_p->name, filerover->name, 8);
+		//strncpy(lump_p->name, filerover->name, 8);
 
 			++lump_p;
 			++filerover;
@@ -285,7 +279,7 @@ int W_CheckNumForName (char* name)
 
         for (i=numlumps-1; i >= 0; --i)
         {
-            if (!strncasecmp(lumpinfo[i].name, name, 8))
+            if (!strncasecmp(lumpinfo[i].ptr->name, name, 8))
             {
                 return i;
             }
@@ -330,7 +324,7 @@ int W_LumpLength (unsigned int lump)
 	I_Error ("W_LumpLength: %i >= numlumps", lump);
     }
 
-    return lumpinfo[lump].size;
+    return lumpinfo[lump].ptr->size;
 }
 
 
@@ -354,12 +348,12 @@ void W_ReadLump(unsigned int lump, void *dest)
 	
     I_BeginRead ();
 	
-    c = W_Read(l->wad_file, l->position, dest, l->size);
+    c = W_Read(l->wad_file, l->ptr->filepos, dest, l->ptr->size);
 
-    if (c < l->size)
+    if (c < l->ptr->size)
     {
 	I_Error ("W_ReadLump: only read %i of %i on lump %i",
-		 c, l->size, lump);	
+		 c, l->ptr->size, lump);	
     }
 
     I_EndRead ();
@@ -401,7 +395,7 @@ void *W_CacheLumpNum(int lumpnum, int tag)
     {
         // Memory mapped file, return from the mmapped region.
 
-        result = lump->wad_file->mapped + lump->position;
+        result = lump->wad_file->mapped + lump->ptr->filepos;
     }
     /*else if (lump->cache != NULL)
     {
