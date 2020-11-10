@@ -51,6 +51,31 @@ void init()
 
     blit::File::add_buffer_file("doom-data/doom1.wad", doom1_wad, doom1_wad_length);
 
+#ifndef TARGET_32BLIT_HW
+    // for testing, load all the WADs into memory
+    for(auto &file : blit::list_files("doom-data"))
+    {
+        if(file.flags & blit::FileFlags::directory)
+            continue;
+
+        if(file.name.length() <= 4 || file.name.substr(file.name.length() - 4) != ".wad")
+            continue;
+
+        blit::File f;
+        if(!f.open("doom-data/" + file.name))
+            continue;
+
+        printf("%s\n", file.name.c_str());
+
+        auto length = f.get_length();
+        auto data = new uint8_t[length];
+
+        f.read(0, length, (char *)data);
+
+        blit::File::add_buffer_file("doom-data/" + file.name, data, length);
+    }
+#endif
+
     if(setjmp(jump_buffer))
         return;
 
