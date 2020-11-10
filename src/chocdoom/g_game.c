@@ -1595,10 +1595,6 @@ void G_DoSaveGame (void)
     temp_savegame_file = /*strupr*/ (P_TempSaveGameFile());
     savegame_file = /*strupr*/ (P_SaveGameFile(savegameslot));
 
-    //
-    temp_savegame_file = savegame_file; // no renaming support
-    //
-
     // Open the savegame file for writing.  We write to a temporary file
     // and then rename it at the end if it was successfully written.
     // This prevents an existing savegame from being overwritten by 
@@ -1640,14 +1636,14 @@ void G_DoSaveGame (void)
 
     if (M_FileExists (savegame_file))
     {
-    	//f_unlink (savegame_file);
+    	blit::remove_file(savegame_file);
     }
 
-    //res = f_rename (temp_savegame_file, savegame_file);
+    bool res = blit::rename_file(temp_savegame_file, savegame_file);
 
-    //if (res != FR_OK)
+    if (!res)
     {
-    	//I_Error ("Savegame not renamed, res = %i", res);
+    	I_Error ("Savegame not renamed");
     }
     
     gameaction = ga_nothing;
