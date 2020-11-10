@@ -199,9 +199,10 @@ wad_file_t *W_AddFile (char *filename)
 		header.numlumps = LONG(header.numlumps);
 		header.infotableofs = LONG(header.infotableofs);
 		length = header.numlumps*sizeof(filelump_t);
-		fileinfo = Z_Malloc(length, PU_STATIC, 0);
+		//fileinfo = Z_Malloc(length, PU_STATIC, 0);
 
-        W_Read(wad_file, header.infotableofs, fileinfo, length);
+        //W_Read(wad_file, header.infotableofs, fileinfo, length);
+        fileinfo = (filelump_t *)(wad_file->mapped + header.infotableofs);
         newnumlumps += header.numlumps;
     }
 
@@ -225,7 +226,7 @@ wad_file_t *W_AddFile (char *filename)
 			++filerover;
     }
 
-    Z_Free(fileinfo);
+    //Z_Free(fileinfo);
 
     if (lumphash != NULL)
     {
