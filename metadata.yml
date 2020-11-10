@@ -1,0 +1,8 @@
+title: DOOM
+description: It runs.
+author: ""
+version: v1.0.0
+icon:
+  file: icon.png
+splash:
+  file: splash.png

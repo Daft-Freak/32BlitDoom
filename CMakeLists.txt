@@ -107,4 +107,5 @@ set_source_files_properties(${DOOM_SOURCES} PROPERTIES
 
 blit_executable(doom ${SOURCES} ${DOOM_SOURCES})
 blit_assets_yaml(doom assets.yml)
+blit_metadata(doom metadata.yml)
 target_include_directories(doom PRIVATE src/blit src/chocdoom src/chocdoom/opl)
