@@ -111,7 +111,7 @@ blit_executable(doom ${SOURCES} ${DOOM_SOURCES})
 
 if(EMBED_ASSET_WAD)
     blit_assets_yaml(doom assets.yml)
-    target_compile_definitions(doom "-DASSET_WAD")
+    target_compile_definitions(doom PRIVATE "-DASSET_WAD")
 endif()
 
 blit_metadata(doom metadata.yml)
