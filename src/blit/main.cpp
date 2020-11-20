@@ -74,11 +74,11 @@ void add_appended_files()
 #endif
 }
 
+bool init_wait = true, done_init = false;
+
 void init()
 {
     blit::set_screen_mode(blit::ScreenMode::hires_palette);
-    blit::screen.pen = blit::Pen(1);
-    blit::screen.clear();
 
 #ifdef ASSET_WAD
     blit::File::add_buffer_file("doom-data/doom1.wad", doom1_wad, doom1_wad_length);
@@ -110,17 +110,18 @@ void init()
         blit::File::add_buffer_file("doom-data/" + file.name, data, length);
     }
 #endif
-
-    if(setjmp(jump_buffer))
-        return;
-
-    D_DoomMain();
 }
 
 void update(uint32_t time)
 {
-    if(!fatal_error.empty() || setjmp(jump_buffer))
+    if(!fatal_error.empty() || init_wait || setjmp(jump_buffer))
         return;
+
+    if(!done_init) {
+        D_DoomMain();
+        done_init = true;
+        return;
+    }
 
     TryRunTics();
 	S_UpdateSounds(players[consoleplayer].mo);
@@ -148,6 +149,15 @@ void render(uint32_t time)
         blit::screen.pen = blit::Pen(176); // FF0000
         blit::screen.text(fatal_error, blit::minimal_font, text_rect, true, blit::TextAlign::center_center);
 
+        return;
+    }
+
+    // wait for render before init, so we know that palette mode is in effect
+    // (since we're using bits of the framebuffer/LTDC memory for other stuff)
+    if(init_wait) {
+        init_wait = false;
+        blit::screen.pen = blit::Pen(1);
+        blit::screen.clear();
         return;
     }
 
