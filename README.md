@@ -15,8 +15,8 @@ make
 
 Assuming you're in the build dir (`cd build`), run:
 ```
-python3 ../append_wads.py doom.bin doom1.bin path/to/doom1.wad
+python3 ../append_wads.py doom.blit doom1.blit path/to/doom1.wad
 ```
-Where `doom1.bin` is the name of the new .bin with the WAD inserted. You can specify other WAD files here, or multiple files.
+Where `doom1.blit` is the name of the new .blit with the WAD inserted. You can specify other WAD files here, or multiple files.
 
 You can also copy `doom1.wad` to `doom-data` ([more info](doom-data/README.md)) and set `-DEMBED_ASSET_WAD=1`. This is useful for testing
