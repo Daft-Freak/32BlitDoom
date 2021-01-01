@@ -157,7 +157,7 @@ void I_GetEvent (void)
 	CheckButton(changed_buttons, blit::Button::X, KEY_RSHIFT);
 	CheckButton(changed_buttons, blit::Button::Y, KEY_TAB);
 
-	CheckButton(changed_buttons, blit::Button::HOME /*MENU?*/, KEY_ESCAPE);
+	CheckButton(changed_buttons, blit::Button::MENU, KEY_ESCAPE);
 
 	last_button_state = blit::buttons;
 
