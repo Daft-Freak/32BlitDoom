@@ -22,7 +22,7 @@ extern "C" void *_sbrk(ptrdiff_t incr)
         heap_end = &end;
 
     // ltdc is at the end of the heap
-    if(heap_end + incr > &__ltdc_start + 320 * 240 * 2)
+    if(heap_end + incr > &__ltdc_start + 320 * 240 * 1)
     {
         puts("sbrk oom");
         return (void *)-1;
