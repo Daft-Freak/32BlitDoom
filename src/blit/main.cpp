@@ -161,6 +161,8 @@ void render(uint32_t time)
         return;
     }
 
+    if(!done_init) return;
+
     if(setjmp(jump_buffer))
         return;
 
