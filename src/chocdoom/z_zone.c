@@ -74,6 +74,16 @@ extern char __fb_start;
 #endif
 memzone_t* memzones[NUM_MEMZONES];
 
+#define SUBCHUNK_SIZE 128 // happens to be the size of mobj_t
+#define NUM_SUBCHUNKS 32
+struct mem_chunk_t {
+    uint32_t used;
+    uint8_t data[SUBCHUNK_SIZE * NUM_SUBCHUNKS];
+    mem_chunk_t *next;
+};
+
+mem_chunk_t *mem_chunks = NULL;
+
 //
 // Z_ClearZone
 //
@@ -96,6 +106,8 @@ void Z_ClearZone (memzone_t* zone)
     block->idtag = PU_FREE;
 
     block->size = zone->size - sizeof(memzone_t);
+
+    mem_chunks = NULL;
 }
 
 static void InitZone(byte *base, int size, memzone_t **zoneptr)
@@ -122,6 +134,8 @@ static void InitZone(byte *base, int size, memzone_t **zoneptr)
     block->size = zone->size - sizeof(memzone_t);
 
     *zoneptr = zone;
+
+    mem_chunks = NULL;
 }
 
 //
@@ -165,7 +179,38 @@ void Z_Free (void* ptr)
     block = (memblock_t *) ( (byte *)ptr - sizeof(memblock_t));
 
     if ((block->idtag & 0xFFFFFF00) != ZONEID)
-	I_Error ("Z_Free: freed a pointer without ZONEID");
+    {
+        // check chunks
+        mem_chunk_t *found_block = NULL, *prev_block = NULL;
+
+        for(mem_chunk_t *block = mem_chunks; block != NULL; block = block->next)
+        {
+            if(ptr > block && ptr < block + sizeof(mem_chunk_t))
+            {
+                found_block = block;
+                break;
+            }
+            prev_block = block;
+        }
+
+        if(found_block)
+        {
+            int i = ((intptr_t)ptr - (intptr_t)found_block->data) / SUBCHUNK_SIZE;
+            found_block->used &= ~(1 << i);
+
+            if(found_block->used == 0)
+            {
+                if(prev_block)
+                    prev_block->next = found_block->next;
+                else
+                    mem_chunks = found_block->next;
+
+                Z_Free(found_block);
+            }
+            return;
+        }
+	    I_Error ("Z_Free: freed a pointer without ZONEID");
+    }
 		
     if ((block->idtag & 0xFF) != PU_FREE && block->user != NULL)
     {
@@ -231,6 +276,38 @@ Z_Malloc
     int i;
 
     size = (size + MEM_ALIGN - 1) & ~(MEM_ALIGN - 1);
+
+    // small object allocator (basically for mobjs)
+    if(size == SUBCHUNK_SIZE && tag == PU_LEVEL)
+    {
+        mem_chunk_t *found_block = NULL;
+
+        for(mem_chunk_t *block = mem_chunks; block != NULL; block = block->next)
+        {
+            if(block->used != (1ull << NUM_SUBCHUNKS) - 1)
+            {
+                found_block = block;
+                break;
+            }
+        }
+
+        if(!found_block)
+        {
+            found_block = (mem_chunk_t *)Z_Malloc(sizeof(mem_chunk_t), tag, NULL);
+            found_block->used = 0;
+            found_block->next = mem_chunks;
+            mem_chunks = found_block;
+        }
+
+        for(int i = 0; i < NUM_SUBCHUNKS; i++)
+        {
+            if(!(found_block->used & (1 << i)))
+            {
+                found_block->used |= (1 << i);
+                return found_block->data + (i * SUBCHUNK_SIZE);
+            }
+        }
+    }
 
     // scan through the block list,
     // looking for the first free block
@@ -365,6 +442,9 @@ Z_FreeTags
             Z_Free ( (byte *)block+sizeof(memblock_t));
         }
     }
+
+    if(lowtag <= PU_LEVEL)
+        mem_chunks = NULL;
 }
 
 // TODO: everything below only looks at mainzone
