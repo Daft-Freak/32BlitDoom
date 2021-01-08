@@ -1,8 +1,10 @@
 title: DOOM
 description: It runs.
 author: ""
-version: v1.1.1
+version: v1.1.2
 icon:
   file: icon.png
 splash:
   file: splash.png
+category: port
+url: https://github.com/Daft-Freak/32BlitDoom
