@@ -113,38 +113,36 @@ static void GetSfxLumpName(sfxinfo_t *sfx, char *buf, size_t buf_len)
     }
 }
 
-static void RefillBuffer(void *data)
+static void RefillBuffer(blit::AudioChannel &channel)
 {
-    int channel = (intptr_t)data;
+    auto sound = (active_sound *)(channel.user_data);
 
-    auto &sound = channel_sounds[channel];
-
-    if(sound.offset == sound.length)
+    if(sound->offset == sound->length)
     {
-        blit::channels[channel].off();
+        channel.off();
         return;
     }
 
     int i = 0;
 
-    if(sound.rate == 11025)
+    if(sound->rate == 11025)
     {
-        for(i = 0; i < 64 && sound.offset < sound.length; i += 2, sound.offset++)
+        for(i = 0; i < 64 && sound->offset < sound->length; i += 2, sound->offset++)
         {
-            blit::channels[channel].wave_buffer[i] = sound.data[sound.offset] - 127;
-            blit::channels[channel].wave_buffer[i + 1] = sound.data[sound.offset] - 127;
+            channel.wave_buffer[i] = (sound->data[sound->offset] - 127) * 256;
+            channel.wave_buffer[i + 1] = (sound->data[sound->offset] - 127) * 256;
         }
     }
     else
     {
-        for(i = 0; i < 64 && sound.offset < sound.length; i++, sound.offset++)
-            blit::channels[channel].wave_buffer[i] = sound.data[sound.offset] - 127;
+        for(i = 0; i < 64 && sound->offset < sound->length; i++, sound->offset++)
+            channel.wave_buffer[i] = (sound->data[sound->offset] - 127) * 256;
     }
     
 
     // pad end
     for(;i < 64; i++)
-        blit::channels[channel].wave_buffer[i] = 0;
+        channel.wave_buffer[i] = 0;
 
 }
 
@@ -155,8 +153,8 @@ static boolean I_Blit_InitSound(boolean _use_sfx_prefix)
     for(int i = 0; i < SOUND_CHANNELS; i++)
     {
         blit::channels[i].waveforms = blit::Waveform::WAVE;
-        blit::channels[i].wave_callback_arg = (void *)(uintptr_t)i;
-        blit::channels[i].callback_waveBufferRefresh = &RefillBuffer;
+        blit::channels[i].user_data = (void *)(&channel_sounds[i]);
+        blit::channels[i].wave_buffer_callback = &RefillBuffer;
     }
     return true;
 }

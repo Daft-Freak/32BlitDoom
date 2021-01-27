@@ -126,7 +126,7 @@ static void FillBuffer(int16_t *buffer, unsigned int nsamples)
 
 // Callback function to fill a new sound buffer:
 
-static void OPL_Blit_Callback(void *udata)
+static void OPL_Blit_Callback(blit::AudioChannel &channel)
 {
     int16_t *buffer;
     unsigned int buffer_len;
@@ -134,7 +134,7 @@ static void OPL_Blit_Callback(void *udata)
 
     // Buffer length in samples (quadrupled, because of 16-bit and stereo)
 
-    buffer = blit::channels[7].wave_buffer;
+    buffer = channel.wave_buffer;
     buffer_len = 64;
 
     // Repeatedly call the OPL emulator update function until the buffer is
@@ -232,8 +232,7 @@ static int opl_blit_Init(unsigned int port_base)
     Chip__Setup(&opl_chip, blit::sample_rate);
 
     blit::channels[7].waveforms = blit::Waveform::WAVE;
-    blit::channels[7].volume = 0xFF;
-    blit::channels[7].callback_waveBufferRefresh = &OPL_Blit_Callback;
+    blit::channels[7].wave_buffer_callback = &OPL_Blit_Callback;
 
     blit::channels[7].adsr = 0xFFFF00;
     blit::channels[7].trigger_sustain();
