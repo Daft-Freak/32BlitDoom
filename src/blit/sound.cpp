@@ -182,7 +182,7 @@ static void I_Blit_UpdateSoundParams(int handle, int vol, int sep)
     if(handle >= SOUND_CHANNELS)
         return;
 
-    blit::channels[handle].volume = vol * 222;
+    blit::channels[handle].volume = vol * 111;
 }
 
 static int I_Blit_StartSound(sfxinfo_t *sfxinfo, int channel, int vol, int sep)
