@@ -1,10 +1,9 @@
-cmake_minimum_required(VERSION 3.8.0)
+cmake_minimum_required(VERSION 3.9.0)
 project(doom)
-set(32BLIT_PATH "../" CACHE PATH "Path to 32blit.cmake")
 
 option(EMBED_ASSET_WAD "Embed a WAD at build time as an asset" OFF)
 
-include(${32BLIT_PATH}/32blit.cmake)
+find_package (32BLIT CONFIG REQUIRED PATHS ../32blit-sdk)
 
 set(DOOM_SOURCES
     src/chocdoom/dummy.c

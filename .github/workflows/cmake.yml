@@ -19,7 +19,7 @@ jobs:
 #          - os: ubuntu-20.04
 #            name: Linux
 #            release-suffix: LIN64
-#            cmake-args: -D32BLIT_PATH=$GITHUB_WORKSPACE/32blit/
+#            cmake-args: -D32BLIT_DIR=$GITHUB_WORKSPACE/32blit/
 #            apt-packages: libsdl2-dev libsdl2-image-dev python3-setuptools
 
           - os: ubuntu-20.04
@@ -40,7 +40,7 @@ jobs:
     - name: Checkout 32blit
       uses: actions/checkout@master
       with:
-        repository: pimoroni/32blit-beta
+        repository: 32blit/32blit-sdk
         path: 32blit
     
     # Linux deps
