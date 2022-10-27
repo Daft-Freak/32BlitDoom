@@ -35,6 +35,10 @@
 
 #include "z_zone.h"
 
+#ifndef ORIGCODE
+#include "engine/api_private.hpp"
+#endif
+
 //
 // DEFAULTS
 //
@@ -2141,7 +2145,7 @@ char *M_GetSaveGameDir(char *iwadname)
 
         free(topdir);
 #else
-        savegamedir = M_StringJoin(configdir, "savegame/", NULL);
+        savegamedir = strdup(blit::api.get_save_path());
 
         M_MakeDirectory(savegamedir);
 
