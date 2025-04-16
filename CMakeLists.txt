@@ -115,3 +115,7 @@ endif()
 
 blit_metadata(doom metadata.yml)
 target_include_directories(doom PRIVATE src/blit src/chocdoom src/chocdoom/opl)
+
+set (CPACK_INCLUDE_TOPLEVEL_DIRECTORY OFF)
+set (CPACK_GENERATOR "ZIP" "TGZ")
+include (CPack)
